@@ -11,21 +11,26 @@ pygame.display.set_caption("Angry Birds - 2 Player")
 clock = pygame.time.Clock()
 FPS = 60
 
-# Catapult positions
-catapult_left = pygame.Rect(100, HEIGHT - 150, 50, 100)
-catapult_right = pygame.Rect(WIDTH - 150, HEIGHT - 150, 50, 100)
-
+# Catapults
+catapult_image = pygame.image.load("./media/Sling.webp")
+catapult_image = pygame.transform.scale(catapult_image, (50, 100))
+catapult_left = (100, HEIGHT - 189)
+catapult_right = (WIDTH - 150, HEIGHT - 186)
+#Back-ground
+background_img = pygame.image.load("./media/back.jpg").convert()
+background_img = pygame.transform.scale(background_img, (WIDTH, HEIGHT))
 # Fortresses
 fortress_left = [Block(300 + i * 35, HEIGHT - 60, "stone") for i in range(3)]
 fortress_right = [Block(WIDTH - 400 + i * 35, HEIGHT - 60, "wood") for i in range(3)]
 
-# Launch state
+# Initiate
 bird = None
 turn = "left"
 running = True
 
 while running:
     clock.tick(FPS)
+    # Check-Events
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
             running = False
@@ -33,15 +38,15 @@ while running:
         if event.type == pygame.MOUSEBUTTONDOWN and not bird:
             mx, my = pygame.mouse.get_pos()
             if turn == "left":
-                power_x = (mx - catapult_left.x)
-                power_y = (my - catapult_left.y)
-                bird = Bird(catapult_left.centerx, catapult_left.centery, power_x, power_y,"red")
+                power_x = (mx - catapult_left[0])
+                power_y = (my - catapult_left[1])
+                bird = Bird(catapult_left[0], catapult_left[1], power_x, power_y,"red")
             else:
-                power_x = (mx - catapult_right.x)
-                power_y = (my - catapult_right.y)
-                bird = Bird(catapult_right.centerx, catapult_right.centery, power_x, power_y,"red")
+                power_x = (mx - catapult_right[0])
+                power_y = (my - catapult_right[1])
+                bird = Bird(catapult_right[0], catapult_right[1], power_x, power_y,"red")
 
-    # Update
+    # Update bird
     if bird:
         bird.update()
         # Check collision
@@ -55,10 +60,10 @@ while running:
             bird = None
             turn = "right" if turn == "left" else "left"
 
-    # Draw
-    screen.fill((135, 206, 235))
-    pygame.draw.rect(screen, (139, 69, 19), catapult_left)
-    pygame.draw.rect(screen, (139, 69, 19), catapult_right)
+    # Draw catapults and background
+    screen.blit(background_img, (0, 0))
+    screen.blit(catapult_image, catapult_left)
+    screen.blit(catapult_image, catapult_right)
 
     for block in fortress_left:
         block.draw(screen)

@@ -1,7 +1,7 @@
 import pygame # type: ignore
 from modules.variables import *
 
-GRAVITY = 9.8
+GRAVITY = -359.8
 
 class Bird:
     def __init__(self, x, y, vx, vy, bird_type, FPS=60, color=(255, 0, 0)):
