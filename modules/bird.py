@@ -1,33 +1,47 @@
 import pygame # type: ignore
 from modules.variables import *
 
-GRAVITY = -359.8
-
 class Bird:
-    def __init__(self, x, y, vx, vy, bird_type, FPS=60, color=(255, 0, 0)):
+    def __init__(self, x, y, bird_type, side, vx = 0, vy = 0, dt = (1/60)):
         self.x = x
         self.y = y
         self.vx = vx
         self.vy = vy
+        self.dt = dt
         self.bird_type = bird_type
-        self.FPS = FPS
-        self.radius = 10
-        self.color = color
-        self.active = True
+        self.side = side
+        self.size = BIRD_SIZE[bird_type]
+        self.alive = True
+        self.active = False
 
     def update(self):
-        if not self.active:
+        if ((not self.alive) or (not self.active)):
             return
-        self.x += self.vx*(1/self.FPS)
-        self.y += self.vy*(1/self.FPS)
-        self.vy -= GRAVITY*(1/self.FPS)
+        self.x += self.vx*self.dt
+        self.y += self.vy*self.dt
+        self.vy += GRAVITY*self.dt
 
-        if self.y > 600 or self.x < 0 or self.x > 1200 or self.y < 0:
+        if self.y > 600 or self.y < 0 or self.x > 1200 or self.x < 0:
+            self.alive = False
             self.active = False
 
     def draw(self, screen):
-        if self.active:
-            pygame.draw.circle(screen, self.color, (self.x, self.y), self.radius)
+        if not self.alive:
+            return
+        bird_image = None
+        if (self.bird_type=="red"):
+            bird_image = pygame.image.load("./media/red.webp")
+        elif (self.bird_type=="chuck"):
+            bird_image = pygame.image.load("./media/chuck.webp")
+        elif (self.bird_type=="blues"):
+            bird_image = pygame.image.load("./media/blues.png")
+        elif (self.bird_type=="bomb"):
+            bird_image = pygame.image.load("./media/bomb.webp")
+
+        bird_image = pygame.transform.scale(bird_image, (self.size, self.size))
+        if (self.side=="right"):
+            bird_image = pygame.transform.flip(bird_image, True, False)
+        screen.blit(bird_image, (self.x, self.y))
 
     def get_rect(self):
-        return pygame.Rect(self.x - self.radius, self.y - self.radius, self.radius * 2, self.radius * 2)
+        return pygame.Rect(self.x, self.y, self.size, self.size)

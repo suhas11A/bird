@@ -16,3 +16,18 @@ BIRD_DAMAGE = {
     "blues": {"wood": 10, "ice": 40, "stone": 10},
     "bomb": {"wood": 10, "ice": 10, "stone": 50}
 }
+
+BIRD_SIZE = {
+    "red" : 50,
+    "chuck" : 50,
+    "blues" : 45,
+    "bomb" : 40
+}
+
+
+BIRD_OPTIONS = ["red", "chuck", "blues", "bomb"]
+BLOCK_OPTIONS = ["wood", "ice", "stone"]
+
+GRAVITY = 359.8
+FPS = 60
+CATAPULT_SIZE = (50,100)
