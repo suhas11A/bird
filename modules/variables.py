@@ -18,10 +18,10 @@ BIRD_DAMAGE = {
 }
 
 BIRD_SIZE = {
-    "red" : 50,
-    "chuck" : 50,
-    "blues" : 45,
-    "bomb" : 40
+    "red" : 35,
+    "chuck" : 35,
+    "blues" : 35,
+    "bomb" : 35
 }
 
 

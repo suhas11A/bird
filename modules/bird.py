@@ -13,6 +13,7 @@ class Bird:
         self.size = BIRD_SIZE[bird_type]
         self.alive = True
         self.active = False
+        self.on_cat = False
 
     def update(self):
         if ((not self.alive) or (not self.active)):
@@ -24,19 +25,20 @@ class Bird:
         if self.y > 600 or self.y < 0 or self.x > 1200 or self.x < 0:
             self.alive = False
             self.active = False
+            self.on_cat = False
 
     def draw(self, screen):
         if not self.alive:
             return
         bird_image = None
         if (self.bird_type=="red"):
-            bird_image = pygame.image.load("./media/red.webp")
+            bird_image = pygame.image.load("./media/red.png")
         elif (self.bird_type=="chuck"):
-            bird_image = pygame.image.load("./media/chuck.webp")
+            bird_image = pygame.image.load("./media/chuck.png")
         elif (self.bird_type=="blues"):
             bird_image = pygame.image.load("./media/blues.png")
         elif (self.bird_type=="bomb"):
-            bird_image = pygame.image.load("./media/bomb.webp")
+            bird_image = pygame.image.load("./media/bomb.png")
 
         bird_image = pygame.transform.scale(bird_image, (self.size, self.size))
         if (self.side=="right"):
@@ -45,3 +47,10 @@ class Bird:
 
     def get_rect(self):
         return pygame.Rect(self.x, self.y, self.size, self.size)
+
+def get_active_bird (*bird_list):
+    for listt in bird_list:
+        for i in listt:
+            if i.active:
+                return i
+    return None
