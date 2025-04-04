@@ -5,12 +5,19 @@ BLOCK_COLORS = {
 }
 
 BLOCK_HEALTH = {
-    "wood": 80,
-    "ice": 80,
-    "stone": 80
+    "wood": 100,
+    "ice": 100,
+    "stone": 100
 }
 
 BIRD_DAMAGE = {
+    "red": {"wood": 400, "ice": 400, "stone": 400},
+    "chuck": {"wood": 40, "ice": 10, "stone": 10},
+    "blues": {"wood": 10, "ice": 40, "stone": 10},
+    "bomb": {"wood": 10, "ice": 10, "stone": 50}
+}
+
+BIRD_DAMAGE_POWER = {
     "red": {"wood": 40, "ice": 40, "stone": 40},
     "chuck": {"wood": 40, "ice": 10, "stone": 10},
     "blues": {"wood": 10, "ice": 40, "stone": 10},

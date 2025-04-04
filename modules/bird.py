@@ -14,8 +14,7 @@ class Bird:
         self.alive = True
         self.active = False
         self.on_cat = False
-        if (self.bird_type in BIRD_OPTIONS):
-            self.image = pygame.image.load(f"./media/{self.bird_type}.png")
+        self.image = pygame.image.load(f"./media/birds/{self.bird_type}.png")
         if (self.side=="right"):
             self.image = pygame.transform.flip(self.image, True, False)
         self.image = pygame.transform.scale(self.image, (self.size, self.size))
@@ -46,3 +45,14 @@ def get_active_bird (*bird_list):
             if i.active:
                 return i
     return None
+
+def draw_birds(screen, *bird_list):
+    for listt in bird_list:
+        for i in listt:
+            i.draw(screen)
+
+def kill_birds(*bird_list):
+    for listt in bird_list:
+        for i in listt:
+            if not i.alive:
+                listt.remove(i)
