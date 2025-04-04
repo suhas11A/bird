@@ -2,7 +2,7 @@ import pygame # type: ignore
 from modules.variables import *
 
 class Bird:
-    def __init__(self, x, y, bird_type, side, vx = 0, vy = 0, dt = (1/60)):
+    def __init__(self, x, y, bird_type, side, vx = 0, vy = 0, dt = (1/120)):
         self.x = x
         self.y = y
         self.vx = vx
@@ -14,6 +14,11 @@ class Bird:
         self.alive = True
         self.active = False
         self.on_cat = False
+        if (self.bird_type in BIRD_OPTIONS):
+            self.image = pygame.image.load(f"./media/{self.bird_type}.png")
+        if (self.side=="right"):
+            self.image = pygame.transform.flip(self.image, True, False)
+        self.image = pygame.transform.scale(self.image, (self.size, self.size))
 
     def update(self):
         if ((not self.alive) or (not self.active)):
@@ -30,20 +35,7 @@ class Bird:
     def draw(self, screen):
         if not self.alive:
             return
-        bird_image = None
-        if (self.bird_type=="red"):
-            bird_image = pygame.image.load("./media/red.png")
-        elif (self.bird_type=="chuck"):
-            bird_image = pygame.image.load("./media/chuck.png")
-        elif (self.bird_type=="blues"):
-            bird_image = pygame.image.load("./media/blues.png")
-        elif (self.bird_type=="bomb"):
-            bird_image = pygame.image.load("./media/bomb.png")
-
-        bird_image = pygame.transform.scale(bird_image, (self.size, self.size))
-        if (self.side=="right"):
-            bird_image = pygame.transform.flip(bird_image, True, False)
-        screen.blit(bird_image, (self.x, self.y))
+        screen.blit(self.image, (self.x, self.y))
 
     def get_rect(self):
         return pygame.Rect(self.x, self.y, self.size, self.size)

@@ -28,6 +28,6 @@ BIRD_SIZE = {
 BIRD_OPTIONS = ["red", "chuck", "blues", "bomb"]
 BLOCK_OPTIONS = ["wood", "ice", "stone"]
 
-GRAVITY = 359.8
-FPS = 60
+GRAVITY = 1000
+FPS = 120
 CATAPULT_SIZE = (50,100)

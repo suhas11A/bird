@@ -70,6 +70,9 @@ while running:
                     active_bird.active = True
                     active_bird.on_cat = True
                     break
+        if active_bird:
+            active_bird.x = catapult_left[0]
+            active_bird.y = catapult_left[1]
     elif active_bird.on_cat and not mouse_down:
         for event in events:
             if (event.type == pygame.MOUSEBUTTONDOWN and active_bird.get_rect().collidepoint(pygame.mouse.get_pos())):
@@ -82,7 +85,7 @@ while running:
             if (event.type == pygame.MOUSEBUTTONUP):
                 active_bird.on_cat = False
                 mouse_down = False
-                active_bird.vx, active_bird.vy = (mouse_pos[0]-active_bird.x,mouse_pos[1]-active_bird.y)
+                active_bird.vx, active_bird.vy = (10*(mouse_pos[0]-active_bird.x),10*(mouse_pos[1]-active_bird.y))
     else:
         active_bird.update()
     
