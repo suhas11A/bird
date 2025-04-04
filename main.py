@@ -90,7 +90,12 @@ while running:
         active_fortress = fortress_left if turn=="left" else fortress_right
         for i in active_fortress:
             if i.check_collision(active_bird):
+                active_bird.collide_mode = True
                 i.apply_damage(active_bird)
+        if active_bird.collide_mode:
+            active_bird.vx *= -e
+            active_bird.collide_mode = False
+            active_bird.collisions += 1
         active_bird.update()
 
     kill_birds(left_birds, right_birds)

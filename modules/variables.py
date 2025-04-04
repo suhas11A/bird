@@ -38,3 +38,4 @@ BLOCK_OPTIONS = ["wood", "ice", "stone"]
 GRAVITY = 1000
 FPS = 120
 CATAPULT_SIZE = (50,100)
+e=0.8
