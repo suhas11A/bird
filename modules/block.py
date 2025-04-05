@@ -11,7 +11,7 @@ class Block:
         self.block_type = block_type
         self.health = BLOCK_HEALTH[block_type]
         self.side = side
-        self.image = pygame.image.load(f"./media/blocks/{self.block_type}_1.png")
+        self.image = pygame.image.load(f"./media/images/blocks/{self.block_type}_1.png")
         if (self.side=="right"):
             self.image = pygame.transform.flip(self.image, True, False)
         self.image = pygame.transform.scale(self.image, (self.size, self.size))
@@ -27,8 +27,8 @@ class Block:
     def apply_damage(self, bird):
         damage = BIRD_DAMAGE[bird.bird_type][self.type]
         self.health -= damage
-        if (self.health<50):
-            self.image = pygame.image.load(f"./media/blocks/{self.block_type}_2.png")
+        if (self.health<=50):
+            self.image = pygame.image.load(f"./media/images/blocks/{self.block_type}_2.png")
             if (self.side == "right"):
                 self.image = pygame.transform.flip(self.image, True, False)
             self.image = pygame.transform.scale(self.image, (self.size, self.size))

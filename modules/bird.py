@@ -2,7 +2,7 @@ import pygame # type: ignore
 from modules.variables import *
 
 class Bird:
-    def __init__(self, x, y, bird_type, side, vx = 0, vy = 0, dt = (1/120)):
+    def __init__(self, x, y, bird_type, side, vx = 0, vy = 0, dt = (1/FPS)):
         self.x = x
         self.y = y
         self.vx = vx
@@ -16,7 +16,7 @@ class Bird:
         self.on_cat = False
         self.collisions = 0
         self.collide_mode = False
-        self.image = pygame.image.load(f"./media/birds/{self.bird_type}.png")
+        self.image = pygame.image.load(f"./media/images/birds/{self.bird_type}.png")
         if (self.side=="right"):
             self.image = pygame.transform.flip(self.image, True, False)
         self.image = pygame.transform.scale(self.image, (self.size, self.size))
@@ -62,3 +62,10 @@ def kill_birds(*bird_list):
         for i in listt:
             if not i.alive or i.collisions>5:
                 listt.remove(i)
+
+def draw_prediction (points_list, screen, image):
+    if not points_list:
+        return
+    for i, point in enumerate(points_list):
+        size = 17 - 17*i/50
+        screen.blit(pygame.transform.scale(image, (size, size)), (point[0]-size/2, point[1]-size/2))

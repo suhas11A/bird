@@ -1,9 +1,3 @@
-BLOCK_COLORS = {
-    "wood": (160, 82, 45),
-    "ice": (173, 216, 230),
-    "stone": (169, 169, 169)
-}
-
 BLOCK_HEALTH = {
     "wood": 100,
     "ice": 100,
@@ -12,9 +6,9 @@ BLOCK_HEALTH = {
 
 BIRD_DAMAGE = {
     "red": {"wood": 400, "ice": 400, "stone": 400},
-    "chuck": {"wood": 40, "ice": 10, "stone": 10},
-    "blues": {"wood": 10, "ice": 40, "stone": 10},
-    "bomb": {"wood": 10, "ice": 10, "stone": 50}
+    "chuck": {"wood": 50, "ice": 50, "stone": 50},
+    "blues": {"wood": 50, "ice": 50, "stone": 50},
+    "bomb": {"wood": 50, "ice": 50, "stone": 50}
 }
 
 BIRD_DAMAGE_POWER = {
@@ -34,8 +28,8 @@ BIRD_SIZE = {
 
 BIRD_OPTIONS = ["red", "chuck", "blues", "bomb"]
 BLOCK_OPTIONS = ["wood", "ice", "stone"]
-
+WIDTH, HEIGHT = 1200, 600
 GRAVITY = 1000
 FPS = 120
 CATAPULT_SIZE = (50,100)
-e=0.8
+e=0.6
