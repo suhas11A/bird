@@ -5,17 +5,17 @@ BLOCK_HEALTH = {
 }
 
 BIRD_DAMAGE = {
-    "red": {"wood": 400, "ice": 400, "stone": 400},
-    "chuck": {"wood": 50, "ice": 50, "stone": 50},
-    "blues": {"wood": 50, "ice": 50, "stone": 50},
-    "bomb": {"wood": 50, "ice": 50, "stone": 50}
+    "red": {"wood": 40, "ice": 40, "stone": 40},
+    "chuck": {"wood": 45, "ice": 10, "stone": 10},
+    "blues": {"wood": 10, "ice": 45, "stone": 10},
+    "bomb": {"wood": 10, "ice": 10, "stone": 45}
 }
 
 BIRD_DAMAGE_POWER = {
     "red": {"wood": 40, "ice": 40, "stone": 40},
     "chuck": {"wood": 40, "ice": 10, "stone": 10},
     "blues": {"wood": 10, "ice": 40, "stone": 10},
-    "bomb": {"wood": 10, "ice": 10, "stone": 50}
+    "bomb": {"wood": 10, "ice": 10, "stone": 40}
 }
 
 BIRD_SIZE = {
@@ -32,4 +32,5 @@ WIDTH, HEIGHT = 1200, 600
 GRAVITY = 1000
 FPS = 120
 CATAPULT_SIZE = (50,100)
+MAX_RADIUS = 150
 e=0.6

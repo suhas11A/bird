@@ -28,11 +28,11 @@ class Bird:
         self.y += self.vy*self.dt
         self.vy += GRAVITY*self.dt
 
-        if self.y < 0 or self.x > 1200 or self.x < 0:
+        if self.y < -300 or self.x > 1500 or self.x < -300:
             self.alive = False
             self.active = False
             self.on_cat = False
-        if self.y>((600*6/7)-self.size) :
+        if self.y>((600*6/7)-self.size) and self.vy>0 :
             self.y = (600*6/7)-self.size
             self.vy *= -e
             self.collisions += 1
