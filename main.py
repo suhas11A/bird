@@ -1,3 +1,5 @@
+#!/usr/bin/env python 
+
 import pygame # type: ignore
 import random
 import math
@@ -10,7 +12,6 @@ from modules.input import *
 
 pygame.init()
 
-WIDTH, HEIGHT = 1200, 600
 screen = pygame.display.set_mode((WIDTH, HEIGHT))
 angry_font = lambda x : pygame.font.Font("./media/fonts/angry.ttf", x)
 pygame.display.set_caption("Angry Birds - 2 Player")
@@ -27,8 +28,9 @@ play_surface = pygame.image.load("./media/images/play.png")
 play_surface = pygame.transform.scale(play_surface, (WIDTH/7, HEIGHT/9.5))
 play_rect = play_surface.get_rect(center=(WIDTH/2,HEIGHT/1.9))
 # Catapults
-catapult_image = pygame.image.load("./media/images/Sling.webp")
-catapult_image = pygame.transform.scale(catapult_image, CATAPULT_SIZE)
+catapult_image_left = pygame.image.load("./media/images/catapult.png")
+catapult_image_left = pygame.transform.scale(catapult_image_left, CATAPULT_SIZE)
+catapult_image_right = pygame.transform.flip(catapult_image_left, True, False)
 catapult_left = (WIDTH/7, HEIGHT*(6/7)-CATAPULT_SIZE[1])
 catapult_right = (WIDTH*(6/7)-CATAPULT_SIZE[0], HEIGHT*(6/7)-CATAPULT_SIZE[1])
 # Back-ground
@@ -144,8 +146,8 @@ while running:
         # Draw catapults and background
         screen.fill((255, 255, 255))
         screen.blit(background_img, (0, 0))
-        screen.blit(catapult_image, catapult_left)
-        screen.blit(catapult_image, catapult_right)
+        screen.blit(catapult_image_left, catapult_left)
+        screen.blit(catapult_image_right, catapult_right)
         name_1.draw(screen)
         name_2.draw(screen)
         draw_blocks(screen, fortress_right, fortress_left)
@@ -162,8 +164,12 @@ while running:
                         active_bird.on_cat = True
                         break
             if active_bird:
-                active_bird.x = (catapult_left if turn=="left" else catapult_right)[0]
-                active_bird.y = (catapult_left if turn=="left" else catapult_right)[1]
+                if turn=="left":
+                    active_bird.x = (catapult_left)[0]+15
+                    active_bird.y = (catapult_left)[1]
+                else:
+                    active_bird.x = (catapult_right)[0]
+                    active_bird.y = (catapult_right)[1]
         elif active_bird.on_cat and not mouse_down:
             for event in events:
                 if (event.type == pygame.MOUSEBUTTONDOWN and active_bird.get_rect().collidepoint(pygame.mouse.get_pos())):
@@ -306,6 +312,7 @@ while running:
                 running_menu = True
                 running_game = False
                 running_end_screen = False
+                win = None
                 for my_input in input_list:
                     my_input.text=""
                     my_input.update()

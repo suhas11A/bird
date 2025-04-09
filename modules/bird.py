@@ -32,8 +32,8 @@ class Bird:
             self.alive = False
             self.active = False
             self.on_cat = False
-        if self.y>((600*6/7)-self.size) and self.vy>0 :
-            self.y = (600*6/7)-self.size
+        if self.y>((HEIGHT*6/7)-self.size) and self.vy>0 :
+            self.y = (HEIGHT*6/7)-self.size
             self.vy *= -e
             self.collisions += 1
 
