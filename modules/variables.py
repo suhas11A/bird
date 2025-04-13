@@ -5,10 +5,10 @@ BLOCK_HEALTH = {
 }
 
 BIRD_DAMAGE = {
-    "red": {"wood": 40, "ice": 40, "stone": 40},
-    "chuck": {"wood": 45, "ice": 10, "stone": 10},
-    "blues": {"wood": 10, "ice": 45, "stone": 10},
-    "bomb": {"wood": 10, "ice": 10, "stone": 45}
+    "red": {"wood": 60, "ice": 60, "stone": 60},
+    "chuck": {"wood": 65, "ice": 60, "stone": 60},
+    "blues": {"wood": 60, "ice": 66, "stone": 60},
+    "bomb": {"wood": 60, "ice": 60, "stone": 65}
 }
 
 BIRD_DAMAGE_POWER = {
@@ -16,13 +16,6 @@ BIRD_DAMAGE_POWER = {
     "chuck": {"wood": 40, "ice": 10, "stone": 10},
     "blues": {"wood": 10, "ice": 40, "stone": 10},
     "bomb": {"wood": 10, "ice": 10, "stone": 40}
-}
-
-BIRD_SIZE = {
-    "red" : 35,
-    "chuck" : 35,
-    "blues" : 35,
-    "bomb" : 35
 }
 
 
@@ -33,4 +26,6 @@ GRAVITY = 1000
 FPS = 120
 CATAPULT_SIZE = (50,100)
 MAX_RADIUS = 150
-e=0.6
+e=0.2
+fortress_width, fortress_height = 1,1
+BIRD_SIZE = 35

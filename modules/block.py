@@ -15,14 +15,24 @@ class Block:
         if (self.side=="right"):
             self.image = pygame.transform.flip(self.image, True, False)
         self.image = pygame.transform.scale(self.image, (self.size, self.size))
+        self.vx = 0
+        self.vy = 0
 
     def draw(self, screen):
         if self.health > 0:
             screen.blit(self.image, (self.x, self.y))
 
-    def check_collision(self, bird):
+    def check_collision(self, bird, collision_face):
         if (self.health > 0):
-            return self.rect.colliderect(bird.get_rect())
+            if ((self.x < bird.x + bird.size <= self.x + bird.vx * bird.dt* 1.3) and self.rect.colliderect(bird.get_rect()) and bird.side=="left"):
+                return True, "side"
+            if ((self.x + self.size + bird.vx * bird.dt <= bird.x < self.x + self.size) and self.rect.colliderect(bird.get_rect()) and bird.side=="right"):
+                return True, "side"
+            if (self.rect.colliderect(bird.get_rect())):
+                return True, "top"
+        return False, collision_face
+
+
 
     def apply_damage(self, bird):
         damage = BIRD_DAMAGE[bird.bird_type][self.type]
@@ -40,9 +50,3 @@ def draw_blocks(screen, *block_list):
     for listt in block_list:
         for i in listt:
             i.draw(screen)
-
-def kill_blocks(*block_list):
-    for listt in block_list:
-        for i in listt:
-            if i.health <=0 :
-                listt.remove(i)

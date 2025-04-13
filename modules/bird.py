@@ -2,15 +2,15 @@ import pygame # type: ignore
 from modules.variables import *
 
 class Bird:
-    def __init__(self, x, y, bird_type, side, vx = 0, vy = 0, dt = (1/FPS)):
+    def __init__(self, x, y, bird_type, side, vx = 0, vy = 0, size = BIRD_SIZE):
         self.x = x
         self.y = y
         self.vx = vx
         self.vy = vy
-        self.dt = dt
+        self.dt = (1/FPS)
         self.bird_type = bird_type
         self.side = side
-        self.size = BIRD_SIZE[bird_type]
+        self.size = size
         self.alive = True
         self.active = False
         self.on_cat = False
@@ -28,7 +28,7 @@ class Bird:
         self.y += self.vy*self.dt
         self.vy += GRAVITY*self.dt
 
-        if self.y < -300 or self.x > 1500 or self.x < -300:
+        if self.y < -(HEIGHT/2) or self.x > (WIDTH*4/3) or self.x < -(WIDTH/3):
             self.alive = False
             self.active = False
             self.on_cat = False

@@ -9,6 +9,7 @@ from modules.block import *
 from modules.variables import *
 from modules.text import *
 from modules.input import *
+from modules.fortress import *
 
 pygame.init()
 
@@ -37,10 +38,8 @@ catapult_right = (WIDTH*(6/7)-CATAPULT_SIZE[0], HEIGHT*(6/7)-CATAPULT_SIZE[1])
 background_img = pygame.image.load("./media/images/back.jpg").convert()
 background_img = pygame.transform.scale(background_img, (WIDTH, HEIGHT))
 # Fortresses
-block_randoms = [BLOCK_OPTIONS[i%3] for i in range(10)]
-random.shuffle(block_randoms)
-fortress_left = [Block(50 + i * 31, HEIGHT*(6/7)-30-31*j, block_randoms[k],"left") for k,(i,j) in enumerate([(i, j) for i in range(2) for j in range(5)])]
-fortress_right = [Block(WIDTH - 80 - i * 31, HEIGHT*(6/7)-30-31*j, block_randoms[k],"right") for k,(i,j) in enumerate([(i, j) for i in range(2) for j in range(5)])]
+fortress_left = Fortress("left")
+fortress_right = Fortress("right")
 # Prediction image
 circle_image = pygame.image.load("./media/images/circle.png")
 # End Screen
@@ -53,24 +52,25 @@ play_again_rect_clickable.y += cut_height
 play_again_rect_clickable.height -= cut_height
 winner_text = None
 # Initiation
-left_birds = [Bird(catapult_left[0]+CATAPULT_SIZE[0]+38*i, catapult_left[1]+CATAPULT_SIZE[1]-BIRD_SIZE[type], type, "left") for i,type in enumerate(BIRD_OPTIONS)]
-right_birds = [Bird(catapult_right[0]-38*i-35, catapult_left[1]+CATAPULT_SIZE[1]-BIRD_SIZE[type], type, "right") for i,type in enumerate(BIRD_OPTIONS)]
+left_birds = [Bird(catapult_left[0]+CATAPULT_SIZE[0]+38*i, catapult_left[1]+CATAPULT_SIZE[1]-BIRD_SIZE, type, "left") for i,type in enumerate(BIRD_OPTIONS)]
+right_birds = [Bird(catapult_right[0]-38*i-35, catapult_left[1]+CATAPULT_SIZE[1]-BIRD_SIZE, type, "right") for i,type in enumerate(BIRD_OPTIONS)]
 turn = "left"
 running = True
-running_menu = True
-running_game = False
-running_end_screen = False
+game_state = "menu"
 win = None
 mouse_pos = None
-active_rectangle = None
-mouse_offset = None
+active_rectangle = None # The rectangle which is clickable when a bird is on catapult
+mouse_offset = None # Offset between the bird origin and mose clocked position
 mouse_down = False
-active_projectile = None
-bird_choosing_left = False
-bird_choosing_right = False
-left_no = None
-right_no = None
-points_list = []
+active_projectile = None # Function to store the projectile function
+bird_choosing_left = False # To represent if the left player is choosing birds
+bird_choosing_right = False # To represent if the left player is choosing birds
+left_no = None # How many birds has left player chosen
+right_no = None # How many birds has right player chosen
+points_list = [] # Expected projectile points
+name_1, name_2 = None, None # Names of players
+active_bird = None # The active bird ie the bird which is on catapult or in air
+active_fortress = None # The fortress which can be hit by current bird
 
 while running:
     dt = clock.tick(FPS)
@@ -79,7 +79,7 @@ while running:
     for event in events:
         if event.type == pygame.QUIT:
             running = False
-    if running_menu:
+    if game_state=="menu":
         screen.fill((255, 255, 255))
         screen.blit(background_img, (0, 0))
         main_text.draw(screen)
@@ -92,9 +92,7 @@ while running:
         for event in events:
             if event.type == pygame.MOUSEBUTTONDOWN:
                 if (play_rect.collidepoint(event.pos) and len(input_list[0].text)>0 and len(input_list[1].text)>0):
-                    running_menu = False
-                    running_game = True
-                    running_end_screen = False
+                    game_state="game"
                     name_1, name_2 = make_texts(input_list)
                 for my_input in input_list:
                     if my_input.outline_rect.collidepoint(event.pos):
@@ -111,9 +109,7 @@ while running:
                                 input_list[i+1].state = "alive"
                             elif i==1 and my_input.text!="":
                                 my_input.state = "dead"
-                                running_menu = False
-                                running_game = True
-                                running_end_screen = False
+                                game_state="game"
                                 name_1, name_2 = make_texts(input_list)
                             my_input.update()
                         elif event.key == pygame.K_BACKSPACE:
@@ -130,10 +126,8 @@ while running:
                 if input_list[0].state=="dead" and input_list[1].state=="dead":
                     if event.key == pygame.K_RETURN:
                         if len(input_list[0].text)>0 and len(input_list[1].text)>0:
-                            running_menu = False
-                            running_game = True
+                            game_state="game"
                             name_1, name_2 = make_texts(input_list)
-                            running_end_screen = False
                         elif len(input_list[0].text)>0 and len(input_list[1].text)==0:
                             input_list[1].state="alive"
                             input_list[1].update()
@@ -142,42 +136,51 @@ while running:
                             input_list[0].update()
 
 
-    elif running_game:
+    elif game_state=="game":
         # Draw catapults and background
         screen.fill((255, 255, 255))
         screen.blit(background_img, (0, 0))
+        fortress_right.draw(screen)
+        fortress_left.draw(screen)
         screen.blit(catapult_image_left, catapult_left)
         screen.blit(catapult_image_right, catapult_right)
         name_1.draw(screen)
         name_2.draw(screen)
-        draw_blocks(screen, fortress_right, fortress_left)
         draw_birds(screen, left_birds, right_birds)
         draw_prediction(points_list, screen, circle_image)
 
         active_bird = get_active_bird(left_birds, right_birds)
         if not active_bird:
-            for event in events:
-                for i in (left_birds if turn=="left" else right_birds):
-                    if (event.type == pygame.MOUSEBUTTONDOWN and i.get_rect().collidepoint(pygame.mouse.get_pos())):
-                        active_bird = i
-                        active_bird.active = True
-                        active_bird.on_cat = True
-                        break
+            points_list=[]
+        if (not active_bird) or (active_bird.on_cat and not mouse_down):
             if active_bird:
-                if turn=="left":
-                    active_bird.x = (catapult_left)[0]+15
-                    active_bird.y = (catapult_left)[1]
-                else:
-                    active_bird.x = (catapult_right)[0]
-                    active_bird.y = (catapult_right)[1]
-        elif active_bird.on_cat and not mouse_down:
-            for event in events:
-                if (event.type == pygame.MOUSEBUTTONDOWN and active_bird.get_rect().collidepoint(pygame.mouse.get_pos())):
-                    mouse_down = True
-                    mouse_pos = pygame.mouse.get_pos()
-                    active_rectangle = active_bird.get_rect()
-                    mouse_offset = (mouse_pos[0]-active_bird.x), (mouse_pos[1]-active_bird.y)
-                    active_bird_home_box = active_bird.get_rect()
+                for event in events:
+                    if (event.type == pygame.MOUSEBUTTONDOWN and active_bird.get_rect().collidepoint(pygame.mouse.get_pos())):
+                        mouse_down = True
+                        mouse_pos = pygame.mouse.get_pos()
+                        active_rectangle = active_bird.get_rect()
+                        mouse_offset = (mouse_pos[0]-active_bird.x), (mouse_pos[1]-active_bird.y)
+                        active_bird_home_box = active_bird.get_rect()
+            if not mouse_down:
+                for event in events:
+                    for i in (left_birds if turn=="left" else right_birds):
+                        if (event.type == pygame.MOUSEBUTTONDOWN and i.get_rect().collidepoint(pygame.mouse.get_pos())):
+                            if active_bird:
+                                active_bird.x = i.x
+                                active_bird.y = i.y
+                                active_bird.active = False
+                                active_bird.on_cat = False
+                            active_bird = i
+                            active_bird.active = True
+                            active_bird.on_cat = True
+                            if active_bird:
+                                if turn=="left":
+                                    active_bird.x = (catapult_left)[0]+15
+                                    active_bird.y = (catapult_left)[1]
+                                else:
+                                    active_bird.x = (catapult_right)[0]
+                                    active_bird.y = (catapult_right)[1]
+                            break
         elif active_bird.on_cat and mouse_down:
             my_dist = math.dist(mouse_pos, pygame.mouse.get_pos())
             if (my_dist < MAX_RADIUS):
@@ -193,15 +196,15 @@ while running:
                 vy = temp_v[1]
             active_projectile = lambda x: (vy*x/vx) + (0.5*GRAVITY*(x**2/vx**2))
             if (not active_rectangle.collidepoint(pygame.mouse.get_pos())):
-                points_list=[]
+                points_list = []
                 if (vx>0):
                     for i in range(25):
-                        points_list.append(((active_bird.x + mouse_offset[0]+25*i), (active_bird.y + mouse_offset[1]+active_projectile(25*i))))
+                        points_list.append(((active_bird.x + BIRD_SIZE/2 + 25*i), (active_bird.y + BIRD_SIZE/2 +active_projectile(25*i))))
                 elif (vx<0):
                     for i in range(25):
-                        points_list.append(((active_bird.x + mouse_offset[0]-25*i), (active_bird.y + mouse_offset[1]+active_projectile(-25*i))))
+                        points_list.append(((active_bird.x + BIRD_SIZE/2 - 25*i), (active_bird.y + BIRD_SIZE/2 + active_projectile(-25*i))))
             else:
-                points_list=[]
+                points_list = []
             for event in events:
                 if (event.type == pygame.MOUSEBUTTONUP and not active_rectangle.collidepoint(pygame.mouse.get_pos())):
                     active_bird.on_cat = False
@@ -215,19 +218,11 @@ while running:
 
         else:
             active_fortress = fortress_left if turn=="left" else fortress_right
-            for i in active_fortress:
-                if i.check_collision(active_bird):
-                    active_bird.collide_mode = True
-                    active_bird.image = pygame.transform.flip(active_bird.image, True, False)
-                    i.apply_damage(active_bird)
-            if active_bird.collide_mode:
-                active_bird.vx *= -e
-                active_bird.collide_mode = False
-                active_bird.collisions += 1
+            active_fortress.update(active_bird)
             active_bird.update()
 
         kill_birds(left_birds, right_birds)
-        kill_blocks(fortress_left, fortress_right)
+        kill_fortress(fortress_left, fortress_right)
         if not right_birds and not bird_choosing_left and not bird_choosing_right:
             bird_choosing_left = True
             left_no = 0
@@ -237,16 +232,16 @@ while running:
             for event in events:
                 if event.type == pygame.KEYDOWN:
                     if event.key == pygame.K_r:
-                        right_birds.append(Bird(catapult_right[0]-38*right_no-35, catapult_left[1]+CATAPULT_SIZE[1]-BIRD_SIZE["red"], "red", "right"))
+                        right_birds.append(Bird(catapult_right[0]-38*right_no-35, catapult_left[1]+CATAPULT_SIZE[1]-BIRD_SIZE, "red", "right"))
                         right_no += 1
                     elif event.key == pygame.K_c:
-                        right_birds.append(Bird(catapult_right[0]-38*right_no-35, catapult_left[1]+CATAPULT_SIZE[1]-BIRD_SIZE["chuck"], "chuck", "right"))
+                        right_birds.append(Bird(catapult_right[0]-38*right_no-35, catapult_left[1]+CATAPULT_SIZE[1]-BIRD_SIZE, "chuck", "right"))
                         right_no += 1
                     elif event.key == pygame.K_b:
-                        right_birds.append(Bird(catapult_right[0]-38*right_no-35, catapult_left[1]+CATAPULT_SIZE[1]-BIRD_SIZE["blues"], "blues", "right"))
+                        right_birds.append(Bird(catapult_right[0]-38*right_no-35, catapult_left[1]+CATAPULT_SIZE[1]-BIRD_SIZE, "blues", "right"))
                         right_no += 1
                     elif event.key == pygame.K_m:
-                        right_birds.append(Bird(catapult_right[0]-38*right_no-35, catapult_left[1]+CATAPULT_SIZE[1]-BIRD_SIZE["bomb"], "bomb", "right"))
+                        right_birds.append(Bird(catapult_right[0]-38*right_no-35, catapult_left[1]+CATAPULT_SIZE[1]-BIRD_SIZE, "bomb", "right"))
                         right_no += 1
             if right_no>2:
                 bird_choosing_right = False
@@ -256,19 +251,19 @@ while running:
             for event in events:
                 if event.type == pygame.KEYDOWN:
                     if event.key == pygame.K_r:
-                        left_birds.append(Bird(catapult_left[0]+CATAPULT_SIZE[0]+38*left_no, catapult_left[1]+CATAPULT_SIZE[1]-BIRD_SIZE["red"], "red", "left"))
+                        left_birds.append(Bird(catapult_left[0]+CATAPULT_SIZE[0]+38*left_no, catapult_left[1]+CATAPULT_SIZE[1]-BIRD_SIZE, "red", "left"))
                         left_no += 1
                         break
                     elif event.key == pygame.K_c:
-                            left_birds.append(Bird(catapult_left[0]+CATAPULT_SIZE[0]+38*left_no, catapult_left[1]+CATAPULT_SIZE[1]-BIRD_SIZE["chuck"], "chuck", "left"))
+                            left_birds.append(Bird(catapult_left[0]+CATAPULT_SIZE[0]+38*left_no, catapult_left[1]+CATAPULT_SIZE[1]-BIRD_SIZE, "chuck", "left"))
                             left_no += 1
                             break
                     elif event.key == pygame.K_b:
-                            left_birds.append(Bird(catapult_left[0]+CATAPULT_SIZE[0]+38*left_no, catapult_left[1]+CATAPULT_SIZE[1]-BIRD_SIZE["blues"], "blues", "left"))
+                            left_birds.append(Bird(catapult_left[0]+CATAPULT_SIZE[0]+38*left_no, catapult_left[1]+CATAPULT_SIZE[1]-BIRD_SIZE, "blues", "left"))
                             left_no += 1
                             break
                     elif event.key == pygame.K_m:
-                            left_birds.append(Bird(catapult_left[0]+CATAPULT_SIZE[0]+38*left_no, catapult_left[1]+CATAPULT_SIZE[1]-BIRD_SIZE["bomb"], "bomb", "left"))
+                            left_birds.append(Bird(catapult_left[0]+CATAPULT_SIZE[0]+38*left_no, catapult_left[1]+CATAPULT_SIZE[1]-BIRD_SIZE, "bomb", "left"))
                             left_no += 1
                             break
             if left_no>2:
@@ -278,29 +273,23 @@ while running:
                 right_no = 0
 
         if (turn=="left" and not active_bird):
-            if not fortress_right and fortress_right:
+            if not fortress_right and not fortress_left:
                 win = "draw"
-                running_menu = False
-                running_game = False
-                running_end_screen = True
+                game_state = "end"
             elif not fortress_left:
                 win = "right"
-                running_menu = False
-                running_game = False
-                running_end_screen = True
+                game_state = "end"
             elif not fortress_right:
                 win = "left"
-                running_menu = False
-                running_game = False
-                running_end_screen = True
+                game_state = "end"
         
 
-    elif running_end_screen:
+    elif game_state == "end":
         if (win=="left"):
             winner_text = Text(WIDTH/2, HEIGHT/1.3, f"{name_1.text} Won", angry_font(40), (0,0,0))
         elif (win=="right"):
             winner_text = Text(WIDTH/2, HEIGHT/1.3, f"{name_2.text} Won", angry_font(40), (0,0,0))
-        else:
+        elif (win=="draw"):
             winner_text = Text(WIDTH/2, HEIGHT/4, f"Match Draw", angry_font(40), (0,0,0))
         screen.fill((255, 255, 255))
         screen.blit(background_img, (0, 0))
@@ -309,14 +298,17 @@ while running:
         screen.blit(play_again_surface, play_again_rect)
         for event in events:
             if event.type == pygame.MOUSEBUTTONDOWN and play_again_rect_clickable.collidepoint(event.pos):
-                running_menu = True
-                running_game = False
-                running_end_screen = False
-                win = None
+                game_state = "menu"
                 for my_input in input_list:
-                    my_input.text=""
+                    my_input.text = ""
                     my_input.update()
-
+                fortress_left = Fortress("left")
+                fortress_right = Fortress("right")
+                winner_text = None
+                left_birds = [Bird(catapult_left[0]+CATAPULT_SIZE[0]+38*i, catapult_left[1]+CATAPULT_SIZE[1]-BIRD_SIZE, type, "left") for i,type in enumerate(BIRD_OPTIONS)]
+                right_birds = [Bird(catapult_right[0]-38*i-35, catapult_left[1]+CATAPULT_SIZE[1]-BIRD_SIZE, type, "right") for i,type in enumerate(BIRD_OPTIONS)]
+                turn = "left"
+                win = None
 
     pygame.display.flip()
 
