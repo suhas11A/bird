@@ -21,11 +21,13 @@ BIRD_DAMAGE_POWER = {
 
 BIRD_OPTIONS = ["red", "chuck", "blues", "bomb"]
 BLOCK_OPTIONS = ["wood", "ice", "stone"]
-WIDTH, HEIGHT = 1200, 600
+WIDTH, HEIGHT = 1600, 900
 GRAVITY = 1000
 FPS = 120
 CATAPULT_SIZE = (50,100)
 MAX_RADIUS = 150
 e=0.2
+MAX_COLLISIONS = 5
 fortress_width, fortress_height = 1,1
 BIRD_SIZE = 35
+BLOCK_SIZE = 30

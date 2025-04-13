@@ -15,7 +15,6 @@ class Bird:
         self.active = False
         self.on_cat = False
         self.collisions = 0
-        self.collide_mode = False
         self.image = pygame.image.load(f"./media/images/birds/{self.bird_type}.png")
         if (self.side=="right"):
             self.image = pygame.transform.flip(self.image, True, False)
@@ -60,7 +59,7 @@ def draw_birds(screen, *bird_list):
 def kill_birds(*bird_list):
     for listt in bird_list:
         for i in listt:
-            if not i.alive or i.collisions>5:
+            if not i.alive or i.collisions > MAX_COLLISIONS:
                 listt.remove(i)
 
 def draw_prediction (points_list, screen, image):

@@ -2,7 +2,7 @@ import pygame # type: ignore
 from modules.variables import *
 
 class Block:
-    def __init__(self, x, y, block_type, side = "left", size=30):
+    def __init__(self, x, y, block_type, side = "left", size = BLOCK_SIZE):
         self.x = x
         self.y = y
         self.size = size

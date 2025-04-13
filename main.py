@@ -54,7 +54,8 @@ winner_text = None
 # Initiation
 left_birds = [Bird(catapult_left[0]+CATAPULT_SIZE[0]+38*i, catapult_left[1]+CATAPULT_SIZE[1]-BIRD_SIZE, type, "left") for i,type in enumerate(BIRD_OPTIONS)]
 right_birds = [Bird(catapult_right[0]-38*i-35, catapult_left[1]+CATAPULT_SIZE[1]-BIRD_SIZE, type, "right") for i,type in enumerate(BIRD_OPTIONS)]
-turn = "left"
+turn = random.choice(["left", "right"]) # Current turn 
+start_turn = turn # Who starts the match
 running = True
 game_state = "menu"
 win = None
@@ -146,6 +147,7 @@ while running:
         screen.blit(catapult_image_right, catapult_right)
         name_1.draw(screen)
         name_2.draw(screen)
+        Text(WIDTH/2, HEIGHT/4, f'{(name_1.text if start_turn=="left" else name_2.text)} Starts first', angry_font(30), (0,0,0)).draw(screen)
         draw_birds(screen, left_birds, right_birds)
         draw_prediction(points_list, screen, circle_image)
 
@@ -272,11 +274,8 @@ while running:
                 left_no = None
                 right_no = 0
 
-        if (turn=="left" and not active_bird):
-            if not fortress_right and not fortress_left:
-                win = "draw"
-                game_state = "end"
-            elif not fortress_left:
+        if (not active_bird):
+            if not fortress_left:
                 win = "right"
                 game_state = "end"
             elif not fortress_right:
@@ -289,8 +288,6 @@ while running:
             winner_text = Text(WIDTH/2, HEIGHT/1.3, f"{name_1.text} Won", angry_font(40), (0,0,0))
         elif (win=="right"):
             winner_text = Text(WIDTH/2, HEIGHT/1.3, f"{name_2.text} Won", angry_font(40), (0,0,0))
-        elif (win=="draw"):
-            winner_text = Text(WIDTH/2, HEIGHT/4, f"Match Draw", angry_font(40), (0,0,0))
         screen.fill((255, 255, 255))
         screen.blit(background_img, (0, 0))
         main_text.draw(screen)
@@ -307,7 +304,8 @@ while running:
                 winner_text = None
                 left_birds = [Bird(catapult_left[0]+CATAPULT_SIZE[0]+38*i, catapult_left[1]+CATAPULT_SIZE[1]-BIRD_SIZE, type, "left") for i,type in enumerate(BIRD_OPTIONS)]
                 right_birds = [Bird(catapult_right[0]-38*i-35, catapult_left[1]+CATAPULT_SIZE[1]-BIRD_SIZE, type, "right") for i,type in enumerate(BIRD_OPTIONS)]
-                turn = "left"
+                turn = random.choice("left", "right")
+                start_turn = turn
                 win = None
 
     pygame.display.flip()

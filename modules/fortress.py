@@ -1,11 +1,7 @@
 import pygame # type: ignore
 import random
-import math
-import numpy as np
 from modules.block import *
 from modules.variables import *
-from modules.text import *
-from modules.input import *
 
 class Fortress:
     def __init__(self, side, width = fortress_width, height = fortress_height):
@@ -25,12 +21,13 @@ class Fortress:
       return bool(self.list)
     def update(self, bird):
         collision_face = None
+        collide_mode = False
         for i in self.list:
             has_collided, collision_face = i.check_collision(bird, collision_face)
             if has_collided:
-                bird.collide_mode = True
+                collide_mode = True
                 i.apply_damage(bird)
-        if bird.collide_mode:
+        if collide_mode:
             if (collision_face=="side"):
                 bird.x -= bird.vx*bird.dt
                 bird.vx *= -e
@@ -38,7 +35,7 @@ class Fortress:
             else:
                 bird.y -= bird.vy*bird.dt
                 bird.vy *= -e
-            bird.collide_mode = False
+            collide_mode = False
             bird.collisions += 1
     
 def kill_fortress(*fortress_list):
