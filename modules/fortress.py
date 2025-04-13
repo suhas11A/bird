@@ -9,9 +9,9 @@ class Fortress:
         block_randoms = [BLOCK_OPTIONS[i%3] for i in range(width * height)]
         random.shuffle(block_randoms)
         if (side=="left"):
-            self.list = [Block(50 + i * 31, HEIGHT*(6/7)-30-31*j, block_randoms[k],"left") for k,(i,j) in enumerate([(i, j) for i in range(width) for j in range(height)])]
+            self.list = [Block(50 + i * (BLOCK_SIZE+2), HEIGHT*(6/7)-BLOCK_SIZE-(BLOCK_SIZE+2)*j, block_randoms[k],"left") for k,(i,j) in enumerate([(i, j) for i in range(width) for j in range(height)])]
         else :
-            self.list = [Block(WIDTH - 80 - i * 31, HEIGHT*(6/7)-30-31*j, block_randoms[k],"right") for k,(i,j) in enumerate([(i, j) for i in range(width) for j in range(height)])]
+            self.list = [Block(WIDTH - (50+BLOCK_SIZE) - i * (BLOCK_SIZE+2), HEIGHT*(6/7)-BLOCK_SIZE-(BLOCK_SIZE+2)*j, block_randoms[k],"right") for k,(i,j) in enumerate([(i, j) for i in range(width) for j in range(height)])]
         self.width = width
         self.height = height
     def draw(self, screen):

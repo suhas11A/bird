@@ -59,7 +59,7 @@ def draw_birds(screen, *bird_list):
 def kill_birds(*bird_list):
     for listt in bird_list:
         for i in listt:
-            if not i.alive or i.collisions > MAX_COLLISIONS:
+            if not i.alive or i.collisions >= MAX_COLLISIONS:
                 listt.remove(i)
 
 def draw_prediction (points_list, screen, image):
