@@ -187,12 +187,12 @@ while running:
             my_dist = math.dist(mouse_pos, pygame.mouse.get_pos())
             if (my_dist < MAX_RADIUS):
                 active_bird.x, active_bird.y = (pygame.mouse.get_pos()[0] - mouse_offset[0], pygame.mouse.get_pos()[1] - mouse_offset[1])
-                vx = (WIDTH/120)*(mouse_pos[0]-pygame.mouse.get_pos()[0])
-                vy = (WIDTH/120)*(mouse_pos[1]-pygame.mouse.get_pos()[1])
+                vx = (10**0.5)*((WIDTH/120)**0.5)*(mouse_pos[0]-pygame.mouse.get_pos()[0])
+                vy = (10**0.5)*((WIDTH/120)**0.5)*(mouse_pos[1]-pygame.mouse.get_pos()[1])
             else:
                 temp_pos = np.array(mouse_pos)-np.array(mouse_offset)+(MAX_RADIUS/my_dist)*(np.array(pygame.mouse.get_pos())-np.array(mouse_pos))
                 active_bird.x, active_bird.y = (temp_pos[0], temp_pos[1])
-                temp_v = (WIDTH/120)*(np.array(mouse_pos) - np.array(mouse_offset) - np.array((active_bird.x, active_bird.y)))
+                temp_v = (10**0.5)*((WIDTH/120)**0.5)*(np.array(mouse_pos) - np.array(mouse_offset) - np.array((active_bird.x, active_bird.y)))
                 active_bird.vx, active_bird.vy = temp_v[0], temp_v[1]
                 vx = temp_v[0]
                 vy = temp_v[1]
@@ -304,7 +304,7 @@ while running:
                 winner_text = None
                 left_birds = [Bird(catapult_left[0]+CATAPULT_SIZE[0]+38*i, catapult_left[1]+CATAPULT_SIZE[1]-BIRD_SIZE, type, "left") for i,type in enumerate(BIRD_OPTIONS)]
                 right_birds = [Bird(catapult_right[0]-38*i-35, catapult_left[1]+CATAPULT_SIZE[1]-BIRD_SIZE, type, "right") for i,type in enumerate(BIRD_OPTIONS)]
-                turn = random.choice("left", "right")
+                turn = random.choice(["left", "right"])
                 start_turn = turn
                 win = None
 

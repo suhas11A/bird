@@ -66,5 +66,5 @@ def draw_prediction (points_list, screen, image):
     if not points_list:
         return
     for i, point in enumerate(points_list):
-        size = 17 - 17*i/50
+        size = BALL_SIZE - BALL_SIZE*i/50
         screen.blit(pygame.transform.scale(image, (size, size)), (point[0]-size/2, point[1]-size/2))
