@@ -32,10 +32,10 @@ play_rect = play_surface.get_rect(center=(WIDTH/2,HEIGHT/1.9))
 catapult_image_left = pygame.image.load("./media/images/catapult.png")
 catapult_image_left = pygame.transform.scale(catapult_image_left, CATAPULT_SIZE)
 catapult_image_right = pygame.transform.flip(catapult_image_left, True, False)
-catapult_left = (WIDTH/7, HEIGHT*(6/7)-CATAPULT_SIZE[1])
-catapult_right = (WIDTH*(6/7)-CATAPULT_SIZE[0], HEIGHT*(6/7)-CATAPULT_SIZE[1])
+catapult_left = (WIDTH/7, HEIGHT-GROUND-CATAPULT_SIZE[1])
+catapult_right = (WIDTH*(6/7)-CATAPULT_SIZE[0], HEIGHT-GROUND-CATAPULT_SIZE[1])
 # Back-ground
-background_img = pygame.image.load("./media/images/back.jpg").convert()
+background_img = pygame.image.load("./media/images/back.jpg").convert() # To be changed before submitting
 background_img = pygame.transform.scale(background_img, (WIDTH, HEIGHT))
 # Fortresses
 fortress_left = Fortress("left")
@@ -62,7 +62,7 @@ win = None
 mouse_pos = None
 active_rectangle = None # The rectangle which is clickable when a bird is on catapult
 mouse_offset = None # Offset between the bird origin and mose clocked position
-mouse_down = False
+mouse_down = False # Flag for dragging of the bird
 active_projectile = None # Function to store the projectile function
 bird_choosing_left = False # To represent if the left player is choosing birds
 bird_choosing_right = False # To represent if the left player is choosing birds
@@ -150,6 +150,8 @@ while running:
         Text(WIDTH/2, HEIGHT/4, f'{(name_1.text if start_turn=="left" else name_2.text)} Starts first', angry_font(WHO_START_FONT), (0,0,0)).draw(screen)
         draw_birds(screen, left_birds, right_birds)
         draw_prediction(points_list, screen, circle_image)
+        fortress_left.block_fall()
+        fortress_right.block_fall()
 
         active_bird = get_active_bird(left_birds, right_birds)
         if not active_bird:
@@ -220,15 +222,28 @@ while running:
 
         else:
             active_fortress = fortress_left if turn=="left" else fortress_right
-            active_fortress.update(active_bird)
-            active_bird.update()
+            if (not active_bird.on_power) and (active_bird.collisions==0):
+                for event in events:
+                    if (event.type == pygame.MOUSEBUTTONDOWN):
+                        active_bird.apply_power(left_birds if turn=="left" else right_birds, active_fortress)
+            if active_bird.bird_type == "blues" and active_bird.on_power == True:
+                active_birds = [x for x in (left_birds if turn == "left" else right_birds) if x.active == True]
+                for i in range(len(active_birds)):
+                    active_fortress.update(active_birds[i])
+                    active_birds[i].update()
+            else:
+                active_fortress.update(active_bird)
+                active_bird.update()
+            if ((active_bird.bird_type=="red" and active_bird.size-BIRD_SIZE>0) and active_bird.on_power == False):
+                active_bird.apply_power(left_birds if turn=="left" else right_birds, active_fortress)
 
         kill_birds(left_birds, right_birds)
         kill_fortress(fortress_left, fortress_right)
-        if not right_birds and not bird_choosing_left and not bird_choosing_right:
-            bird_choosing_left = True
+        if not right_birds and not bird_choosing_left and not bird_choosing_right and not left_birds:
+            bird_choosing_left = (True if start_turn=="left" else False)
             left_no = 0
-            bird_choosing_right = False
+            right_no = 0
+            bird_choosing_right = not bird_choosing_left
         
         if bird_choosing_right and not bird_choosing_left:
             for event in events:
@@ -246,8 +261,18 @@ while running:
                         right_birds.append(Bird(catapult_right[0]-(BIRD_SIZE+4)*right_no-BIRD_SIZE, catapult_left[1]+CATAPULT_SIZE[1]-BIRD_SIZE, "bomb", "right"))
                         right_no += 1
             if right_no>2:
-                bird_choosing_right = False
-                right_no = None
+                if (start_turn=="left"):
+                    bird_choosing_right = False
+                    right_no = None
+                else:
+                    bird_choosing_right = False
+                    bird_choosing_left = True
+                    left_no = 0
+                    right_no = None
+                    for event in events:
+                        if event.type == pygame.KEYDOWN:
+                            events.remove(event)
+                            break
 
         if bird_choosing_left and not bird_choosing_right:
             for event in events:
@@ -257,22 +282,26 @@ while running:
                         left_no += 1
                         break
                     elif event.key == pygame.K_c:
-                            left_birds.append(Bird(catapult_left[0]+CATAPULT_SIZE[0]+(BIRD_SIZE+4)*left_no, catapult_left[1]+CATAPULT_SIZE[1]-BIRD_SIZE, "chuck", "left"))
-                            left_no += 1
-                            break
+                        left_birds.append(Bird(catapult_left[0]+CATAPULT_SIZE[0]+(BIRD_SIZE+4)*left_no, catapult_left[1]+CATAPULT_SIZE[1]-BIRD_SIZE, "chuck", "left"))
+                        left_no += 1
+                        break
                     elif event.key == pygame.K_b:
-                            left_birds.append(Bird(catapult_left[0]+CATAPULT_SIZE[0]+(BIRD_SIZE+4)*left_no, catapult_left[1]+CATAPULT_SIZE[1]-BIRD_SIZE, "blues", "left"))
-                            left_no += 1
-                            break
+                        left_birds.append(Bird(catapult_left[0]+CATAPULT_SIZE[0]+(BIRD_SIZE+4)*left_no, catapult_left[1]+CATAPULT_SIZE[1]-BIRD_SIZE, "blues", "left"))
+                        left_no += 1
+                        break
                     elif event.key == pygame.K_m:
-                            left_birds.append(Bird(catapult_left[0]+CATAPULT_SIZE[0]+(BIRD_SIZE+4)*left_no, catapult_left[1]+CATAPULT_SIZE[1]-BIRD_SIZE, "bomb", "left"))
-                            left_no += 1
-                            break
+                        left_birds.append(Bird(catapult_left[0]+CATAPULT_SIZE[0]+(BIRD_SIZE+4)*left_no, catapult_left[1]+CATAPULT_SIZE[1]-BIRD_SIZE, "bomb", "left"))
+                        left_no += 1
+                        break
             if left_no>2:
-                bird_choosing_left = False
-                bird_choosing_right = True
-                left_no = None
-                right_no = 0
+                if (start_turn=="left"):
+                    bird_choosing_left = False
+                    bird_choosing_right = True
+                    left_no = None
+                    right_no = 0
+                else:
+                    bird_choosing_left = False
+                    left_no = None
 
         if (not active_bird):
             if not fortress_left:

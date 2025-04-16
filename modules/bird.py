@@ -1,8 +1,9 @@
 import pygame # type: ignore
+import numpy as np
 from modules.variables import *
 
 class Bird:
-    def __init__(self, x, y, bird_type, side, vx = 0, vy = 0, size = BIRD_SIZE):
+    def __init__(self, x, y, bird_type, side, vx = 0, vy = 0, size = BIRD_SIZE, alive = True, active = False, on_cat = False, on_power = False):
         self.x = x
         self.y = y
         self.vx = vx
@@ -11,14 +12,24 @@ class Bird:
         self.bird_type = bird_type
         self.side = side
         self.size = size
-        self.alive = True
-        self.active = False
-        self.on_cat = False
+        self.alive = alive
+        self.active = active
+        self.on_cat = on_cat
+        self.on_power = on_power
         self.collisions = 0
-        self.image = pygame.image.load(f"./media/images/birds/{self.bird_type}.png")
+        self.og_image = pygame.image.load(f"./media/images/birds/{self.bird_type}.png")
         if (self.side=="right"):
-            self.image = pygame.transform.flip(self.image, True, False)
-        self.image = pygame.transform.scale(self.image, (self.size, self.size))
+            self.og_image = pygame.transform.flip(self.og_image, True, False)
+        self.image = pygame.transform.scale(self.og_image, (self.size, self.size))
+        self.explosion_frames = []
+        self.explosion_index = 0
+        self.explosion_time = 0
+        self.explosion_pos = None
+        if self.bird_type == "bomb":
+            for i in range(NUM_FRAMES):
+                img = pygame.image.load(f"./media/images/explosion_frames/frame_{i}.png")
+                img = pygame.transform.scale(img, (self.size * 7, self.size * 7))
+                self.explosion_frames.append(img)
 
     def update(self):
         if ((not self.alive) or (not self.active)):
@@ -31,15 +42,60 @@ class Bird:
             self.alive = False
             self.active = False
             self.on_cat = False
-        if self.y>((HEIGHT*6/7)-self.size) and self.vy>0 :
-            self.y = (HEIGHT*6/7)-self.size
+        if self.y>((HEIGHT-GROUND)-self.size) and self.vy>0 :
+            self.y = (HEIGHT-GROUND)-self.size
             self.vy *= -e
             self.collisions += 1
+
+        if self.bird_type == "bomb" and self.on_power and self.alive:    ################################
+            now = pygame.time.get_ticks()    ################################
+            if self.explosion_index < len(self.explosion_frames):    ################################
+                if now - self.explosion_time > 75:    ################################
+                    self.explosion_time = now    ################################
+                    self.explosion_index += 1    ################################
+            else:
+                self.alive = False     ################################
+
+    def apply_power(self, bird_list, fortress):
+        if self.bird_type == "blues":
+            self.active = False
+            self.alive = False
+            self.on_power = True
+            bird_list.append(Bird(self.x, self.y, self.bird_type, self.side, self.vx, self.vy+200, self.size, True, True, False, True))
+            bird_list.append(Bird(self.x, self.y, self.bird_type, self.side, self.vx, self.vy-200, self.size, True, True, False, True))
+            bird_list.append(Bird(self.x, self.y, self.bird_type, self.side, self.vx, self.vy, self.size, True, True, False, True))
+        elif self.bird_type == "red":
+            self.x -= (FACTOR_RED-1)*(BIRD_SIZE)/2
+            self.y -= (FACTOR_RED-1)*(BIRD_SIZE)/2
+            self.size += (FACTOR_RED-1)*BIRD_SIZE
+            self.image = pygame.transform.scale(self.og_image, (self.size, self.size))
+            if (self.size >= 1.5*BIRD_SIZE):
+                self.on_power = True
+        elif self.bird_type == "bomb":
+            self.on_power = True
+            self.vy = 0
+            self.vx = 0
+            self.explosion_pos = (self.x, self.y)
+            self.explosion_time = pygame.time.get_ticks()    ################################
+            for block in fortress.list:
+                dist = np.linalg.norm(np.array(self.explosion_pos)-np.array(block.get_centre()))
+                block.health -= BIRD_DAMAGE[self.bird_type][block.type]*(2/(1+(2**abs(dist/300))))
+                print(BIRD_DAMAGE[self.bird_type][block.type]*(2/(1+(2**abs(dist/300)))))
+                block.update_image()
+        elif self.bird_type == "chuck":
+            self.on_power = True
+            self.vx *= FACTOR_CHUCK
+            self.vy *= FACTOR_CHUCK
 
     def draw(self, screen):
         if not self.alive:
             return
-        screen.blit(self.image, (self.x, self.y))
+        if self.bird_type == "bomb" and self.on_power and self.explosion_index < len(self.explosion_frames):    ################################
+            img = self.explosion_frames[self.explosion_index]    ################################
+            screen.blit(img, (self.explosion_pos[0] - img.get_width() / 2, self.explosion_pos[1] - img.get_height() / 1.8))    ################################
+            return    ################################
+        elif (self.bird_type!="bomb" or not self.on_power):
+            screen.blit(self.image, (self.x, self.y))
 
     def get_rect(self):
         return pygame.Rect(self.x, self.y, self.size, self.size)
