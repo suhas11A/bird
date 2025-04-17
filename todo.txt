@@ -1,0 +1,19 @@
+basic
+
+put powers of birds:
+    fix bomb damage formula
+    fix red collisions
+add hover effect when mouse on buttons
+put pause screen
+make it scalable
+report.pdf\
+path after release 
+big radius path at power up
+
+advanced
+
+levels : moving blocks, more blocks, wind
+scoring system based on precision of impact, high score leader leaderboard across sessions
+make 5 different variations in block health and you might have to scale the blocks bigger accordingly
+other things your wish
+custom theme
