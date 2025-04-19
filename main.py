@@ -17,6 +17,7 @@ screen = pygame.display.set_mode((WIDTH, HEIGHT))
 angry_font = lambda x : pygame.font.Font("./media/fonts/angry.ttf", x)
 pygame.display.set_caption("Angry Birds - 2 Player")
 clock = pygame.time.Clock()
+pygame.key.set_repeat(400, 50)
 
 # Menu
 main_text = Text(WIDTH/2,HEIGHT/10,"Angry Birds", angry_font(MAIN_FONT), (0,0,0))
@@ -68,7 +69,9 @@ bird_choosing_left = False # To represent if the left player is choosing birds
 bird_choosing_right = False # To represent if the left player is choosing birds
 left_no = None # How many birds has left player chosen
 right_no = None # How many birds has right player chosen
-points_list = [] # Expected projectile points
+points_prediction = [] # Expected projectile points
+path_points  = [] # Path as bird progresses
+trail_timer = 0 # To track time so that i can draw points on birds path
 name_1, name_2 = None, None # Names of players
 active_bird = None # The active bird ie the bird which is on catapult or in air
 active_fortress = None # The fortress which can be hit by current bird
@@ -149,13 +152,16 @@ while running:
         name_2.draw(screen)
         Text(WIDTH/2, HEIGHT/4, f'{(name_1.text if start_turn=="left" else name_2.text)} Starts first', angry_font(WHO_START_FONT), (0,0,0)).draw(screen)
         draw_birds(screen, left_birds, right_birds)
-        draw_prediction(points_list, screen, circle_image)
+        draw_prediction(points_prediction, screen, circle_image)
         fortress_left.block_fall()
         fortress_right.block_fall()
 
         active_bird = get_active_bird(left_birds, right_birds)
+        draw_path(path_points, screen, circle_image, active_bird)
         if not active_bird:
-            points_list=[]
+            points_prediction=[]
+            path_points = []
+            trail_timer = 0
         if (not active_bird) or (active_bird.on_cat and not mouse_down):
             if active_bird:
                 for event in events:
@@ -200,15 +206,15 @@ while running:
                 vy = temp_v[1]
             active_projectile = lambda x: (vy*x/vx) + (0.5*GRAVITY*(x**2/vx**2))
             if (not active_rectangle.collidepoint(pygame.mouse.get_pos())):
-                points_list = []
+                points_prediction = []
                 if (vx>0):
-                    for i in range(30):
-                        points_list.append(((active_bird.x + BIRD_SIZE/2 + (WIDTH/50)*i), (active_bird.y + BIRD_SIZE/2 +active_projectile((WIDTH/50)*i))))
+                    for i in range(20):
+                        points_prediction.append(((active_bird.x + BIRD_SIZE/2 + (WIDTH/50)*i), (active_bird.y + BIRD_SIZE/2 +active_projectile((WIDTH/50)*i))))
                 elif (vx<0):
-                    for i in range(30):
-                        points_list.append(((active_bird.x + BIRD_SIZE/2 - (WIDTH/50)*i), (active_bird.y + BIRD_SIZE/2 + active_projectile(-(WIDTH/50)*i))))
+                    for i in range(20):
+                        points_prediction.append(((active_bird.x + BIRD_SIZE/2 - (WIDTH/50)*i), (active_bird.y + BIRD_SIZE/2 + active_projectile(-(WIDTH/50)*i))))
             else:
-                points_list = []
+                points_prediction = []
             for event in events:
                 if (event.type == pygame.MOUSEBUTTONUP and not active_rectangle.collidepoint(pygame.mouse.get_pos())):
                     active_bird.on_cat = False
@@ -221,11 +227,13 @@ while running:
                     active_bird.x, active_bird.y = [active_rectangle[i] for i in (0,1)]
 
         else:
+            points_prediction = []
             active_fortress = fortress_left if turn=="left" else fortress_right
             if (not active_bird.on_power) and (active_bird.collisions==0):
                 for event in events:
                     if (event.type == pygame.MOUSEBUTTONDOWN):
                         active_bird.apply_power(left_birds if turn=="left" else right_birds, active_fortress)
+                        active_bird.explosion_pos = (active_bird.x, active_bird.y)
             if active_bird.bird_type == "blues" and active_bird.on_power == True:
                 active_birds = [x for x in (left_birds if turn == "left" else right_birds) if x.active == True]
                 for i in range(len(active_birds)):
@@ -236,6 +244,12 @@ while running:
                 active_bird.update()
             if ((active_bird.bird_type=="red" and active_bird.size-BIRD_SIZE>0) and active_bird.on_power == False):
                 active_bird.apply_power(left_birds if turn=="left" else right_birds, active_fortress)
+            trail_timer += dt
+            if trail_timer >= 40:
+                trail_x = active_bird.x + active_bird.size/2
+                trail_y = active_bird.y + active_bird.size/2
+                path_points.append((trail_x, trail_y))
+                trail_timer = 0
 
         kill_birds(left_birds, right_birds)
         kill_fortress(fortress_left, fortress_right)

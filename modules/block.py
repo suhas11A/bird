@@ -19,6 +19,7 @@ class Block:
         self.vy = 0
         self.is_falling = False
         self.dt = 1/FPS
+        self.mask = pygame.mask.from_surface(self.image)
 
     def get_centre(self):
         return (self.x+self.size/2, self.y+self.size/2)
@@ -28,12 +29,20 @@ class Block:
             screen.blit(self.image, (self.x, self.y))
 
     def check_collision(self, bird, collision_face):
-        if (self.health > 0):
-            if ((self.x < bird.x + bird.size <= self.x + bird.vx * bird.dt* 2) and self.rect.colliderect(bird.get_rect()) and bird.side=="left"):
+        if (self.health <= 0):
+            return False, collision_face
+        block_rect = self.rect
+        bird_rect  = bird.get_rect()
+        offset = (
+            int(bird_rect.x - block_rect.x),
+            int(bird_rect.y - block_rect.y)
+        )
+        if self.mask.overlap(bird.mask, offset):
+            if ((self.x < bird.x + bird.size <= self.x + bird.vx * bird.dt* 2) and bird.side=="left"):
                 return True, "side"
-            if ((self.x + self.size + bird.vx * bird.dt * 2 <= bird.x < self.x + self.size) and self.rect.colliderect(bird.get_rect()) and bird.side=="right"):
+            elif ((self.x + self.size + bird.vx * bird.dt * 2 <= bird.x < self.x + self.size) and bird.side=="right"):
                 return True, "side"
-            if (self.rect.colliderect(bird.get_rect())):
+            else:
                 return True, "top"
         return False, collision_face
 

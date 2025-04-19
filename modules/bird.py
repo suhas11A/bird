@@ -21,6 +21,7 @@ class Bird:
         if (self.side=="right"):
             self.og_image = pygame.transform.flip(self.og_image, True, False)
         self.image = pygame.transform.scale(self.og_image, (self.size, self.size))
+        self.mask = pygame.mask.from_surface(self.image)
         self.explosion_frames = []
         self.explosion_index = 0
         self.explosion_time = 0
@@ -48,6 +49,10 @@ class Bird:
             self.collisions += 1
 
         if self.bird_type == "bomb" and self.on_power and self.alive:    ################################
+            self.x = self.explosion_pos[0]
+            self.y = self.explosion_pos[1]
+            self.vx = 0
+            self.vy = 0
             now = pygame.time.get_ticks()    ################################
             if self.explosion_index < len(self.explosion_frames):    ################################
                 if now - self.explosion_time > 75:    ################################
@@ -61,14 +66,17 @@ class Bird:
             self.active = False
             self.alive = False
             self.on_power = True
+            bird_list.append(Bird(self.x, self.y, self.bird_type, self.side, self.vx, self.vy, self.size, True, True, False, True))
+            temp_bird = bird_list[-1]
+            temp_bird.explosion_pos = (temp_bird.x, temp_bird.y)
             bird_list.append(Bird(self.x, self.y, self.bird_type, self.side, self.vx, self.vy+200, self.size, True, True, False, True))
             bird_list.append(Bird(self.x, self.y, self.bird_type, self.side, self.vx, self.vy-200, self.size, True, True, False, True))
-            bird_list.append(Bird(self.x, self.y, self.bird_type, self.side, self.vx, self.vy, self.size, True, True, False, True))
         elif self.bird_type == "red":
             self.x -= (FACTOR_RED-1)*(BIRD_SIZE)/2
             self.y -= (FACTOR_RED-1)*(BIRD_SIZE)/2
             self.size += (FACTOR_RED-1)*BIRD_SIZE
             self.image = pygame.transform.scale(self.og_image, (self.size, self.size))
+            self.mask = pygame.mask.from_surface(self.image)
             if (self.size >= 1.5*BIRD_SIZE):
                 self.on_power = True
         elif self.bird_type == "bomb":
@@ -118,9 +126,23 @@ def kill_birds(*bird_list):
             if not i.alive or i.collisions >= MAX_COLLISIONS:
                 listt.remove(i)
 
-def draw_prediction (points_list, screen, image):
-    if not points_list:
+def draw_prediction (points_prediction, screen, image):
+    if not points_prediction:
         return
-    for i, point in enumerate(points_list):
+    for i, point in enumerate(points_prediction):
         size = BALL_SIZE - BALL_SIZE*i/50
         screen.blit(pygame.transform.scale(image, (size, size)), (point[0]-size/2, point[1]-size/2))
+
+def draw_path(path_points, screen, image, bird):
+    if bird is None:
+        return
+    if not path_points:
+        return
+    for i, point in enumerate(path_points):
+        size = max(BALL_SIZE - BALL_SIZE*i/75, 0)
+        screen.blit(pygame.transform.scale(image, (size, size)), (point[0]-size/2, point[1]-size/2))
+    if bird.explosion_pos is None:
+        return
+    point = bird.explosion_pos
+    size = 1.5*BALL_SIZE
+    screen.blit(pygame.transform.scale(image, (size, size)), (point[0]+BIRD_SIZE/2-size/2, point[1]+BIRD_SIZE/2-size/2))

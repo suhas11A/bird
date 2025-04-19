@@ -2,14 +2,10 @@ basic
 
 put powers of birds:
     fix bomb damage formula and bomb is not going away
-    fix red collisions
-it is not going in sometimes and sometimes it is going in tooo much
-add hover effect when mouse on buttons
 put pause screen
 make it scalable
-report.pdf\
-path after release 
-big radius path at power up
+report.pdf
+slow the birds down so that user has more control
 
 advanced
 
