@@ -11,6 +11,12 @@ BIRD_DAMAGE = {
     "bomb": {"wood": 60, "ice": 60, "stone": 65}
 }  # To be tuned before submitting
 
+DIFFICULTY_SETTINGS = {
+    1: {"width": 2,  "height": 6,  "wind_max":  0}, # To be tuned before submitting
+    2: {"width": 4,  "height": 6,  "wind_max":  3},
+    3: {"width": 6,  "height": 8,  "wind_max":  6},
+    4: {"width": 8,  "height":10,  "wind_max":  9},
+}
 
 BIRD_OPTIONS = ["red", "chuck", "blues", "bomb"]
 BLOCK_OPTIONS = ["wood", "ice", "stone"]
@@ -18,6 +24,7 @@ WIDTH, HEIGHT = 1600, 900
 GRAVITY = 1000
 FPS = 120
 CATAPULT_SIZE = (50 * (WIDTH/1400),100 * (WIDTH/1400))
+DIFF_SIZE = (WIDTH/20, WIDTH/20)
 MAX_RADIUS = 125
 e=0.3
 MAX_COLLISIONS = 5
@@ -33,3 +40,7 @@ FACTOR_RED = 1.01 # Rate at which red bird grows
 FACTOR_CHUCK = 1.5 # Factor at which speed of chuck increases
 GROUND = HEIGHT/7
 NUM_FRAMES = 14
+wind_period = 6.0
+WIND_MUL = 30 # To be tuned before submitting
+TIME_LIMIT = 20
+NOISE_SEED = 1234

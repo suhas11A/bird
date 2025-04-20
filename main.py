@@ -10,6 +10,7 @@ from modules.variables import *
 from modules.text import *
 from modules.input import *
 from modules.fortress import *
+from modules.wind import *
 
 pygame.init()
 
@@ -38,11 +39,27 @@ catapult_right = (WIDTH*(6/7)-CATAPULT_SIZE[0], HEIGHT-GROUND-CATAPULT_SIZE[1])
 # Back-ground
 background_img = pygame.image.load("./media/images/back.jpg").convert() # To be changed before submitting
 background_img = pygame.transform.scale(background_img, (WIDTH, HEIGHT))
-# Fortresses
-fortress_left = Fortress("left")
-fortress_right = Fortress("right")
 # Prediction image
 circle_image = pygame.image.load("./media/images/circle.png")
+# Difficulty choosing
+diff_text = Text(WIDTH/2, HEIGHT/3, "Select Difficulty (1-4)", angry_font(WHO_START_FONT), (0,0,0))
+diff_surfaces = [pygame.image.load(f"./media/images/levels/{i}.png").convert_alpha() for i in (1,2,3,4)]
+diff_surfaces = [pygame.transform.scale(s, DIFF_SIZE) for s in diff_surfaces]
+diff_rects = []
+total_width = DIFF_SIZE[0]*4 + 20*3
+start_x = (WIDTH - total_width)//2
+y = HEIGHT//2
+for i, surf in enumerate(diff_surfaces):
+    rect = surf.get_rect(topleft=(start_x + i*(DIFF_SIZE[0]+20), y))
+    diff_rects.append(rect)
+arrow_image_og = pygame.image.load("./media/images/arrow.png")
+# Pause screen
+pause_image = pygame.image.load("./media/images/pause.png")
+pause_image = pygame.transform.scale(pause_image, DIFF_SIZE)
+pause_rect = pause_image.get_rect(center = (WIDTH*(15/16), HEIGHT/10))
+dim_surface = pygame.Surface((WIDTH, HEIGHT))  # same size as screen
+dim_surface.set_alpha(50)  # 0 = fully transparent, 255 = fully opaque
+dim_surface.fill((0, 0, 0)) 
 # End Screen
 play_again_surface = pygame.image.load("./media/images/play_again.png")
 play_again_surface = pygame.transform.scale(play_again_surface, (WIDTH/7.3, HEIGHT/3.7))
@@ -75,6 +92,10 @@ trail_timer = 0 # To track time so that i can draw points on birds path
 name_1, name_2 = None, None # Names of players
 active_bird = None # The active bird ie the bird which is on catapult or in air
 active_fortress = None # The fortress which can be hit by current bird
+wind = 0 # Current wind
+wind_locked = False     ################################
+locked_wind = 0     ################################
+last_turn = turn # For wind timer
 
 while running:
     dt = clock.tick(FPS)
@@ -96,7 +117,7 @@ while running:
         for event in events:
             if event.type == pygame.MOUSEBUTTONDOWN:
                 if (play_rect.collidepoint(event.pos) and len(input_list[0].text)>0 and len(input_list[1].text)>0):
-                    game_state="game"
+                    game_state="difficulty"
                     name_1, name_2 = make_texts(input_list)
                 for my_input in input_list:
                     if my_input.outline_rect.collidepoint(event.pos):
@@ -113,7 +134,7 @@ while running:
                                 input_list[i+1].state = "alive"
                             elif i==1 and my_input.text!="":
                                 my_input.state = "dead"
-                                game_state="game"
+                                game_state="difficulty"
                                 name_1, name_2 = make_texts(input_list)
                             my_input.update()
                         elif event.key == pygame.K_BACKSPACE:
@@ -130,7 +151,7 @@ while running:
                 if input_list[0].state=="dead" and input_list[1].state=="dead":
                     if event.key == pygame.K_RETURN:
                         if len(input_list[0].text)>0 and len(input_list[1].text)>0:
-                            game_state="game"
+                            game_state="difficulty"
                             name_1, name_2 = make_texts(input_list)
                         elif len(input_list[0].text)>0 and len(input_list[1].text)==0:
                             input_list[1].state="alive"
@@ -138,6 +159,40 @@ while running:
                         elif len(input_list[0].text)==0:
                             input_list[0].state="alive"
                             input_list[0].update()
+
+    elif game_state == "difficulty":
+        screen.fill((255,255,255))
+        screen.blit(background_img, (0,0))
+        diff_text.draw(screen)
+        for surf, rect in zip(diff_surfaces, diff_rects):
+            screen.blit(surf, rect)
+        for event in events:
+            if event.type == pygame.KEYDOWN and event.unicode in ("1","2","3","4"):
+                diff = int(event.unicode)
+                this_game_width  = DIFFICULTY_SETTINGS[diff]["width"]
+                this_game_height = DIFFICULTY_SETTINGS[diff]["height"]
+                this_game_WIND_MAX = DIFFICULTY_SETTINGS[diff]["wind_max"]
+                fortress_left  = Fortress("left", this_game_width, this_game_height)
+                fortress_right = Fortress("right", this_game_width, this_game_height)
+                game_state = "game"
+                wind = 0
+                wind_timer = 0
+                wind_lock_start = pygame.time.get_ticks()     ################################
+                break
+            elif event.type == pygame.MOUSEBUTTONDOWN:
+                for idx, rect in enumerate(diff_rects, start=1):
+                    if rect.collidepoint(event.pos):
+                        diff = idx
+                        this_game_width  = DIFFICULTY_SETTINGS[diff]["width"]
+                        this_game_height = DIFFICULTY_SETTINGS[diff]["height"]
+                        this_game_WIND_MAX = DIFFICULTY_SETTINGS[diff]["wind_max"]
+                        fortress_left  = Fortress("left", this_game_width, this_game_height)
+                        fortress_right = Fortress("right", this_game_width, this_game_height)
+                        game_state = "game"
+                        wind = 0
+                        wind_timer = 0
+                        wind_lock_start = pygame.time.get_ticks()     ################################
+                        break
 
 
     elif game_state=="game":
@@ -148,6 +203,7 @@ while running:
         fortress_left.draw(screen)
         screen.blit(catapult_image_left, catapult_left)
         screen.blit(catapult_image_right, catapult_right)
+        screen.blit(pause_image, pause_rect)
         name_1.draw(screen)
         name_2.draw(screen)
         Text(WIDTH/2, HEIGHT/4, f'{(name_1.text if start_turn=="left" else name_2.text)} Starts first', angry_font(WHO_START_FONT), (0,0,0)).draw(screen)
@@ -158,6 +214,39 @@ while running:
 
         active_bird = get_active_bird(left_birds, right_birds)
         draw_path(path_points, screen, circle_image, active_bird)
+
+        for event in events:
+            if ((event.type == pygame.KEYDOWN and event.key == pygame.K_p) or (event.type==pygame.MOUSEBUTTONDOWN and pause_rect.collidepoint(pygame.mouse.get_pos()))):
+                    game_state = "pause"
+                    temp_game_pause_time = pygame.time.get_ticks()
+                    break
+                
+        now = pygame.time.get_ticks()     ################################
+        if turn != last_turn:     ################################
+            last_turn = turn
+            wind_lock_start = now
+            wind_locked = False
+
+        if not wind_locked:     ################################
+            wind_timer += dt/1000.0     ################################
+            raw_noise = fractal_noise_1d(wind_timer, seed=NOISE_SEED, octaves=5)     ################################
+            wind = this_game_WIND_MAX * raw_noise     ################################
+            if now - wind_lock_start >= 1000*TIME_LIMIT:
+                wind_locked = True
+                locked_wind = wind
+        else:     ################################
+            wind = locked_wind
+        arrow_image = pygame.transform.scale(arrow_image_og, ((50*abs(wind)), 70))
+        arrow_rect = arrow_image.get_rect(center=(WIDTH/2, HEIGHT/10))
+        if (wind>0):
+            pass
+        else:
+            arrow_image = pygame.transform.flip(arrow_image, True, False)
+        screen.blit(arrow_image, arrow_rect)
+        remaining = max(0, TIME_LIMIT - (now - wind_lock_start)/1000.0)
+        timer_surf = angry_font(30).render(f"Wait: {remaining:.1f}s", True, (200, 0, 0))
+        screen.blit(timer_surf, (WIDTH - 180, 20)) if diff>1 else None
+
         if not active_bird:
             points_prediction=[]
             path_points = []
@@ -208,10 +297,10 @@ while running:
             if (not active_rectangle.collidepoint(pygame.mouse.get_pos())):
                 points_prediction = []
                 if (vx>0):
-                    for i in range(20):
+                    for i in range(30):
                         points_prediction.append(((active_bird.x + BIRD_SIZE/2 + (WIDTH/50)*i), (active_bird.y + BIRD_SIZE/2 +active_projectile((WIDTH/50)*i))))
                 elif (vx<0):
-                    for i in range(20):
+                    for i in range(30):
                         points_prediction.append(((active_bird.x + BIRD_SIZE/2 - (WIDTH/50)*i), (active_bird.y + BIRD_SIZE/2 + active_projectile(-(WIDTH/50)*i))))
             else:
                 points_prediction = []
@@ -220,6 +309,7 @@ while running:
                     active_bird.on_cat = False
                     mouse_down = False
                     active_bird.vx, active_bird.vy = vx, vy
+                    active_bird.wind = wind
                     turn = "left" if turn=="right" else "right"
                 elif (event.type == pygame.MOUSEBUTTONUP and active_rectangle.collidepoint(pygame.mouse.get_pos())):
                     active_bird.on_cat = True
@@ -231,7 +321,7 @@ while running:
             active_fortress = fortress_left if turn=="left" else fortress_right
             if (not active_bird.on_power) and (active_bird.collisions==0):
                 for event in events:
-                    if (event.type == pygame.MOUSEBUTTONDOWN):
+                    if (event.type == pygame.MOUSEBUTTONDOWN or (event.type==pygame.KEYDOWN and event.key==pygame.K_SPACE)):
                         active_bird.apply_power(left_birds if turn=="left" else right_birds, active_fortress)
                         active_bird.explosion_pos = (active_bird.x, active_bird.y)
             if active_bird.bird_type == "blues" and active_bird.on_power == True:
@@ -324,13 +414,52 @@ while running:
             elif not fortress_right:
                 win = "left"
                 game_state = "end"
-        
+
+    elif game_state == "pause":
+        screen.blit(background_img, (0,0))
+        screen.blit(dim_surface, (0, 0))
+        Text(WIDTH/2, HEIGHT/4,  "PAUSED",      angry_font(MAIN_FONT),  (0,0,0)).draw(screen)
+        Text(WIDTH/2, HEIGHT/2.5,"Resume",  angry_font(WHO_START_FONT),(100,100,100)).draw(screen)
+        Text(WIDTH/2, HEIGHT/2,  "Restart", angry_font(WHO_START_FONT),(100,100,100)).draw(screen)
+        Text(WIDTH/2, HEIGHT/1.7,"Quit",    angry_font(WHO_START_FONT),(100,100,100)).draw(screen)
+        for event in events:
+            if event.type == pygame.KEYDOWN:
+                if event.key == pygame.K_p:
+                    game_state = "game"
+                    wind_lock_start += pygame.time.get_ticks()-temp_game_pause_time
+                elif event.key == pygame.K_r:
+                    fortress_left  = Fortress("left",  this_game_width,  this_game_height)
+                    fortress_right = Fortress("right", this_game_width,  this_game_height)
+                    left_birds  = [Bird(catapult_left[0]+CATAPULT_SIZE[0]+(BIRD_SIZE+4)*i, catapult_left[1]+CATAPULT_SIZE[1]-BIRD_SIZE, t, "left") for i,t in enumerate(BIRD_OPTIONS)]
+                    right_birds = [Bird(catapult_right[0]-(BIRD_SIZE+4)*i-BIRD_SIZE, catapult_left[1]+CATAPULT_SIZE[1]-BIRD_SIZE, t, "right") for i,t in enumerate(BIRD_OPTIONS)]
+                    start_turn = random.choice(["left", "right"])
+                    turn = start_turn
+                    wind = 0
+                    wind_timer = 0.0
+                    wind_lock_start = pygame.time.get_ticks()
+                    points_prediction = []
+                    path_points = []
+                    game_state = "game"
+                    bird_choosing_right = False
+                    bird_choosing_left = False
+                    right_no = None
+                    left_no = None
+                    wind = 0 # Current wind
+                    wind_locked = False
+                    locked_wind = 0
+                    last_turn = turn
+                    trail_timer = 0
+                elif event.key == pygame.K_q:
+                    game_state = "end"
+                    win = "quit"
 
     elif game_state == "end":
         if (win=="left"):
             winner_text = Text(WIDTH/2, HEIGHT/1.3, f"{name_1.text} Won", angry_font(WINNER_TEXT_FONT), (0,0,0))
         elif (win=="right"):
             winner_text = Text(WIDTH/2, HEIGHT/1.3, f"{name_2.text} Won", angry_font(WINNER_TEXT_FONT), (0,0,0))
+        elif (win=="quit"):
+            winner_text = Text(WIDTH/2, HEIGHT/1.3, f"Game Quit", angry_font(WINNER_TEXT_FONT), (0,0,0))
         screen.fill((255, 255, 255))
         screen.blit(background_img, (0, 0))
         main_text.draw(screen)
@@ -350,6 +479,15 @@ while running:
                 turn = random.choice(["left", "right"])
                 start_turn = turn
                 win = None
+                bird_choosing_right = False
+                bird_choosing_left = False
+                right_no = None
+                left_no = None
+                trail_timer = 0
+                wind = 0 # Current wind
+                wind_locked = False
+                locked_wind = 0
+                last_turn = turn
 
     pygame.display.flip()
 

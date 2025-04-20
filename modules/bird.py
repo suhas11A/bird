@@ -22,6 +22,7 @@ class Bird:
             self.og_image = pygame.transform.flip(self.og_image, True, False)
         self.image = pygame.transform.scale(self.og_image, (self.size, self.size))
         self.mask = pygame.mask.from_surface(self.image)
+        self.wind = None
         self.explosion_frames = []
         self.explosion_index = 0
         self.explosion_time = 0
@@ -38,6 +39,9 @@ class Bird:
         self.x += self.vx*self.dt
         self.y += self.vy*self.dt
         self.vy += GRAVITY*self.dt
+        wind = self.wind
+        if (wind!=0):
+            self.vx += (wind**2)*(wind/abs(wind))*WIND_MUL*self.dt
 
         if self.y < -(HEIGHT/2) or self.x > (WIDTH*4/3) or self.x < -(WIDTH/3):
             self.alive = False
@@ -66,11 +70,14 @@ class Bird:
             self.active = False
             self.alive = False
             self.on_power = True
+            wind = self.wind
             bird_list.append(Bird(self.x, self.y, self.bird_type, self.side, self.vx, self.vy, self.size, True, True, False, True))
             temp_bird = bird_list[-1]
             temp_bird.explosion_pos = (temp_bird.x, temp_bird.y)
             bird_list.append(Bird(self.x, self.y, self.bird_type, self.side, self.vx, self.vy+200, self.size, True, True, False, True))
             bird_list.append(Bird(self.x, self.y, self.bird_type, self.side, self.vx, self.vy-200, self.size, True, True, False, True))
+            for i in range(3):
+                bird_list[-(i+1)].wind = wind
         elif self.bird_type == "red":
             self.x -= (FACTOR_RED-1)*(BIRD_SIZE)/2
             self.y -= (FACTOR_RED-1)*(BIRD_SIZE)/2
