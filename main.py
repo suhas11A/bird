@@ -48,22 +48,31 @@ diff_surfaces = [pygame.transform.scale(s, DIFF_SIZE) for s in diff_surfaces]
 diff_rects = []
 total_width = DIFF_SIZE[0]*4 + 20*3
 start_x = (WIDTH - total_width)//2
-y = HEIGHT//2
+y = HEIGHT/2.5
 for i, surf in enumerate(diff_surfaces):
     rect = surf.get_rect(topleft=(start_x + i*(DIFF_SIZE[0]+20), y))
     diff_rects.append(rect)
 arrow_image_og = pygame.image.load("./media/images/arrow.png")
 # Pause screen
-pause_image = pygame.image.load("./media/images/pause.png")
+pause_image = pygame.image.load("./media/images/pause_options/pause.png")
 pause_image = pygame.transform.scale(pause_image, DIFF_SIZE)
 pause_rect = pause_image.get_rect(center = (WIDTH*(15/16), HEIGHT/10))
 dim_surface = pygame.Surface((WIDTH, HEIGHT))  # same size as screen
 dim_surface.set_alpha(50)  # 0 = fully transparent, 255 = fully opaque
-dim_surface.fill((0, 0, 0)) 
+dim_surface.fill((0, 0, 0))
+resume_img = pygame.image.load("./media/images/pause_options/resume.png").convert_alpha()
+resume_img = pygame.transform.scale(resume_img, (BUTTON_W, BUTTON_H))
+resume_rect = resume_img.get_rect(center=(WIDTH/2, HEIGHT/2.5))
+replay_img = pygame.image.load("./media/images/pause_options/replay.png").convert_alpha()
+replay_img = pygame.transform.scale(replay_img, (BUTTON_W, BUTTON_H))
+replay_rect = replay_img.get_rect(center=(WIDTH/2, HEIGHT/2.02381))
+quit_img = pygame.image.load("./media/images/pause_options/quit.png").convert_alpha()
+quit_img = pygame.transform.scale(quit_img, (BUTTON_W, BUTTON_H))
+quit_rect = quit_img.get_rect(center=(WIDTH/2, HEIGHT/1.7))
 # End Screen
 play_again_surface = pygame.image.load("./media/images/play_again.png")
 play_again_surface = pygame.transform.scale(play_again_surface, (WIDTH/7.3, HEIGHT/3.7))
-play_again_rect = play_again_surface.get_rect(center=(WIDTH/2,HEIGHT/1.9))
+play_again_rect = play_again_surface.get_rect(center=(WIDTH/2,HEIGHT/2.5))
 play_again_rect_clickable = play_again_rect.copy()
 cut_height = play_again_rect_clickable.height / 2.48
 play_again_rect_clickable.y += cut_height
@@ -417,49 +426,60 @@ while running:
 
     elif game_state == "pause":
         screen.blit(background_img, (0,0))
+        fortress_right.draw(screen)
+        fortress_left.draw(screen)
+        screen.blit(catapult_image_left, catapult_left)
+        screen.blit(catapult_image_right, catapult_right)
+        name_1.draw(screen)
+        name_2.draw(screen)
+        screen.blit(timer_surf, (WIDTH - 180, 20)) if diff>1 else None
+        screen.blit(arrow_image, arrow_rect)
+        draw_birds(screen, left_birds, right_birds)
         screen.blit(dim_surface, (0, 0))
         Text(WIDTH/2, HEIGHT/4,  "PAUSED",      angry_font(MAIN_FONT),  (0,0,0)).draw(screen)
-        Text(WIDTH/2, HEIGHT/2.5,"Resume",  angry_font(WHO_START_FONT),(100,100,100)).draw(screen)
-        Text(WIDTH/2, HEIGHT/2,  "Restart", angry_font(WHO_START_FONT),(100,100,100)).draw(screen)
-        Text(WIDTH/2, HEIGHT/1.7,"Quit",    angry_font(WHO_START_FONT),(100,100,100)).draw(screen)
+        screen.blit(resume_img, resume_rect)
+        screen.blit(replay_img, replay_rect)
+        screen.blit(quit_img, quit_rect)
         for event in events:
-            if event.type == pygame.KEYDOWN:
-                if event.key == pygame.K_p:
-                    game_state = "game"
-                    wind_lock_start += pygame.time.get_ticks()-temp_game_pause_time
-                elif event.key == pygame.K_r:
-                    fortress_left  = Fortress("left",  this_game_width,  this_game_height)
-                    fortress_right = Fortress("right", this_game_width,  this_game_height)
-                    left_birds  = [Bird(catapult_left[0]+CATAPULT_SIZE[0]+(BIRD_SIZE+4)*i, catapult_left[1]+CATAPULT_SIZE[1]-BIRD_SIZE, t, "left") for i,t in enumerate(BIRD_OPTIONS)]
-                    right_birds = [Bird(catapult_right[0]-(BIRD_SIZE+4)*i-BIRD_SIZE, catapult_left[1]+CATAPULT_SIZE[1]-BIRD_SIZE, t, "right") for i,t in enumerate(BIRD_OPTIONS)]
-                    start_turn = random.choice(["left", "right"])
-                    turn = start_turn
-                    wind = 0
-                    wind_timer = 0.0
-                    wind_lock_start = pygame.time.get_ticks()
-                    points_prediction = []
-                    path_points = []
-                    game_state = "game"
-                    bird_choosing_right = False
-                    bird_choosing_left = False
-                    right_no = None
-                    left_no = None
-                    wind = 0 # Current wind
-                    wind_locked = False
-                    locked_wind = 0
-                    last_turn = turn
-                    trail_timer = 0
-                elif event.key == pygame.K_q:
-                    game_state = "end"
-                    win = "quit"
+            if (event.type == pygame.KEYDOWN and event.key == pygame.K_p) or (event.type == pygame.MOUSEBUTTONDOWN and resume_rect.collidepoint(event.pos)):
+                game_state = "game"
+                wind_lock_start += pygame.time.get_ticks()-temp_game_pause_time
+                break
+            elif (event.type == pygame.KEYDOWN and event.key == pygame.K_r) or (event.type == pygame.MOUSEBUTTONDOWN and replay_rect.collidepoint(event.pos)):
+                fortress_left  = Fortress("left",  this_game_width,  this_game_height)
+                fortress_right = Fortress("right", this_game_width,  this_game_height)
+                left_birds  = [Bird(catapult_left[0]+CATAPULT_SIZE[0]+(BIRD_SIZE+4)*i, catapult_left[1]+CATAPULT_SIZE[1]-BIRD_SIZE, t, "left") for i,t in enumerate(BIRD_OPTIONS)]
+                right_birds = [Bird(catapult_right[0]-(BIRD_SIZE+4)*i-BIRD_SIZE, catapult_left[1]+CATAPULT_SIZE[1]-BIRD_SIZE, t, "right") for i,t in enumerate(BIRD_OPTIONS)]
+                start_turn = random.choice(["left", "right"])
+                turn = start_turn
+                wind = 0
+                wind_timer = 0.0
+                wind_lock_start = pygame.time.get_ticks()
+                points_prediction = []
+                path_points = []
+                game_state = "game"
+                bird_choosing_right = False
+                bird_choosing_left = False
+                right_no = None
+                left_no = None
+                wind = 0 # Current wind
+                wind_locked = False
+                locked_wind = 0
+                last_turn = turn
+                trail_timer = 0
+                break
+            elif (event.type == pygame.KEYDOWN and event.key == pygame.K_q) or (event.type == pygame.MOUSEBUTTONDOWN and quit_rect.collidepoint(event.pos)):
+                game_state = "end"
+                win = "quit"
+                break
 
     elif game_state == "end":
         if (win=="left"):
-            winner_text = Text(WIDTH/2, HEIGHT/1.3, f"{name_1.text} Won", angry_font(WINNER_TEXT_FONT), (0,0,0))
+            winner_text = Text(WIDTH/2, HEIGHT/1.7, f"{name_1.text} Won", angry_font(WINNER_TEXT_FONT), (0,0,0))
         elif (win=="right"):
-            winner_text = Text(WIDTH/2, HEIGHT/1.3, f"{name_2.text} Won", angry_font(WINNER_TEXT_FONT), (0,0,0))
+            winner_text = Text(WIDTH/2, HEIGHT/1.7, f"{name_2.text} Won", angry_font(WINNER_TEXT_FONT), (0,0,0))
         elif (win=="quit"):
-            winner_text = Text(WIDTH/2, HEIGHT/1.3, f"Game Quit", angry_font(WINNER_TEXT_FONT), (0,0,0))
+            winner_text = Text(WIDTH/2, HEIGHT/1.7, f"Game Quit", angry_font(WINNER_TEXT_FONT), (0,0,0))
         screen.fill((255, 255, 255))
         screen.blit(background_img, (0, 0))
         main_text.draw(screen)
