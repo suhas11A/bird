@@ -27,20 +27,20 @@ colon1_text = Text(WIDTH/2,HEIGHT/4.5,":", angry_font(PLAYER_NAME_FONT), (0,0,0)
 player2_text = Text(WIDTH/3.5,HEIGHT/3,"Name of player 2", angry_font(PLAYER_NAME_FONT), (0,0,0))
 colon2_text = Text(WIDTH/2,HEIGHT/3,":", angry_font(PLAYER_NAME_FONT), (0,0,0))
 input_list = [Input(WIDTH - WIDTH/3.5,HEIGHT/i,"", angry_font(PLAYER_NAME_FONT), "dead", (0,0,0)) for i in [4.5, 3]]
-play_surface = pygame.image.load("./media/images/play.png")
+play_surface = pygame.image.load("./media/images/play.png").convert_alpha()
 play_surface = pygame.transform.scale(play_surface, (WIDTH/7, HEIGHT/9.5))
 play_rect = play_surface.get_rect(center=(WIDTH/2,HEIGHT/1.9))
 # Catapults
-catapult_image_left = pygame.image.load("./media/images/catapult.png")
+catapult_image_left = pygame.image.load("./media/images/catapult.png").convert_alpha()
 catapult_image_left = pygame.transform.scale(catapult_image_left, CATAPULT_SIZE)
 catapult_image_right = pygame.transform.flip(catapult_image_left, True, False)
 catapult_left = (WIDTH/7, HEIGHT-GROUND-CATAPULT_SIZE[1])
 catapult_right = (WIDTH*(6/7)-CATAPULT_SIZE[0], HEIGHT-GROUND-CATAPULT_SIZE[1])
 # Back-ground
-background_img = pygame.image.load("./media/images/back.jpg").convert() # To be changed before submitting
+background_img = pygame.image.load("./media/images/back.jpg").convert_alpha() # To be changed before submitting
 background_img = pygame.transform.scale(background_img, (WIDTH, HEIGHT))
 # Prediction image
-circle_image = pygame.image.load("./media/images/circle.png")
+circle_image = pygame.image.load("./media/images/circle.png").convert_alpha()
 # Difficulty choosing
 diff_text = Text(WIDTH/2, HEIGHT/3, "Select Difficulty (1-4)", angry_font(WHO_START_FONT), (0,0,0))
 diff_surfaces = [pygame.image.load(f"./media/images/levels/{i}.png").convert_alpha() for i in (1,2,3,4)]
@@ -52,9 +52,9 @@ y = HEIGHT/2.5
 for i, surf in enumerate(diff_surfaces):
     rect = surf.get_rect(topleft=(start_x + i*(DIFF_SIZE[0]+20), y))
     diff_rects.append(rect)
-arrow_image_og = pygame.image.load("./media/images/arrow.png")
+arrow_image_og = pygame.image.load("./media/images/arrow.png").convert_alpha()
 # Pause screen
-pause_image = pygame.image.load("./media/images/pause_options/pause.png")
+pause_image = pygame.image.load("./media/images/pause_options/pause.png").convert_alpha()
 pause_image = pygame.transform.scale(pause_image, DIFF_SIZE)
 pause_rect = pause_image.get_rect(center = (WIDTH*(15/16), HEIGHT/10))
 dim_surface = pygame.Surface((WIDTH, HEIGHT))  # same size as screen
@@ -70,7 +70,7 @@ quit_img = pygame.image.load("./media/images/pause_options/quit.png").convert_al
 quit_img = pygame.transform.scale(quit_img, (BUTTON_W, BUTTON_H))
 quit_rect = quit_img.get_rect(center=(WIDTH/2, HEIGHT/1.7))
 # End Screen
-play_again_surface = pygame.image.load("./media/images/play_again.png")
+play_again_surface = pygame.image.load("./media/images/play_again.png").convert_alpha()
 play_again_surface = pygame.transform.scale(play_again_surface, (WIDTH/7.3, HEIGHT/3.7))
 play_again_rect = play_again_surface.get_rect(center=(WIDTH/2,HEIGHT/2.5))
 play_again_rect_clickable = play_again_rect.copy()
@@ -228,6 +228,7 @@ while running:
             if ((event.type == pygame.KEYDOWN and event.key == pygame.K_p) or (event.type==pygame.MOUSEBUTTONDOWN and pause_rect.collidepoint(pygame.mouse.get_pos()))):
                     game_state = "pause"
                     temp_game_pause_time = pygame.time.get_ticks()
+                    events.remove(event)
                     break
                 
         now = pygame.time.get_ticks()     ################################

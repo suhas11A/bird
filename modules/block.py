@@ -11,7 +11,7 @@ class Block:
         self.block_type = block_type
         self.health = BLOCK_HEALTH[block_type]
         self.side = side
-        self.image = pygame.image.load(f"./media/images/blocks/{self.block_type}_1.png")
+        self.image = pygame.image.load(f"./media/images/blocks/{self.block_type}_1.png").convert_alpha()
         if (self.side=="right"):
             self.image = pygame.transform.flip(self.image, True, False)
         self.image = pygame.transform.scale(self.image, (self.size, self.size))
@@ -48,7 +48,7 @@ class Block:
 
     def update_image(self):
         if (self.health<=50):
-            self.image = pygame.image.load(f"./media/images/blocks/{self.block_type}_2.png")
+            self.image = pygame.image.load(f"./media/images/blocks/{self.block_type}_2.png").convert_alpha()
             if (self.side == "right"):
                 self.image = pygame.transform.flip(self.image, True, False)
             self.image = pygame.transform.scale(self.image, (self.size, self.size))

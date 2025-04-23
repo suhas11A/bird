@@ -17,7 +17,7 @@ class Bird:
         self.on_cat = on_cat
         self.on_power = on_power
         self.collisions = 0
-        self.og_image = pygame.image.load(f"./media/images/birds/{self.bird_type}.png")
+        self.og_image = pygame.image.load(f"./media/images/birds/{self.bird_type}.png").convert_alpha()
         if (self.side=="right"):
             self.og_image = pygame.transform.flip(self.og_image, True, False)
         self.image = pygame.transform.scale(self.og_image, (self.size, self.size))
@@ -29,7 +29,7 @@ class Bird:
         self.explosion_pos = None
         if self.bird_type == "bomb":
             for i in range(NUM_FRAMES):
-                img = pygame.image.load(f"./media/images/explosion_frames/frame_{i}.png")
+                img = pygame.image.load(f"./media/images/explosion_frames/frame_{i}.png").convert_alpha()
                 img = pygame.transform.scale(img, (self.size * 7, self.size * 7))
                 self.explosion_frames.append(img)
 

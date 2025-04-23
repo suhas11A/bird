@@ -2,7 +2,6 @@ basic
 
 put powers of birds:
     fix bomb damage formula and bomb is not going away
-pause screen put images of buttons
 make it scalable
 report.pdf
 slow the birds down so that user has more control and also tune all the constants
