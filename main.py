@@ -11,25 +11,42 @@ from modules.text import *
 from modules.input import *
 from modules.fortress import *
 from modules.wind import *
+from modules.rounded import *
 
 pygame.init()
 
 screen = pygame.display.set_mode((WIDTH, HEIGHT))
 angry_font = lambda x : pygame.font.Font("./media/fonts/angry.ttf", x)
+font = angry_font
 pygame.display.set_caption("Angry Birds - 2 Player")
 clock = pygame.time.Clock()
 pygame.key.set_repeat(400, 50)
 
+# Default theme
+selected_theme = "default"
+GROUND = GROUND_LEVEL[selected_theme]
 # Menu
-main_text = Text(WIDTH/2,HEIGHT/10,"Angry Birds", angry_font(MAIN_FONT), (0,0,0))
-player1_text = Text(WIDTH/3.5,HEIGHT/4.5,"Name of player 1", angry_font(PLAYER_NAME_FONT), (0,0,0))
-colon1_text = Text(WIDTH/2,HEIGHT/4.5,":", angry_font(PLAYER_NAME_FONT), (0,0,0))
-player2_text = Text(WIDTH/3.5,HEIGHT/3,"Name of player 2", angry_font(PLAYER_NAME_FONT), (0,0,0))
-colon2_text = Text(WIDTH/2,HEIGHT/3,":", angry_font(PLAYER_NAME_FONT), (0,0,0))
-input_list = [Input(WIDTH - WIDTH/3.5,HEIGHT/i,"", angry_font(PLAYER_NAME_FONT), "dead", (0,0,0)) for i in [4.5, 3]]
+main_text = Text(WIDTH/2,HEIGHT/10,"Angry Birds", font(BIG_FONT), TEXT_COLOR[selected_theme])
+player1_text = Text(WIDTH/3.5,HEIGHT/4.5,"Name of player 1", font(SMALL_FONT), TEXT_COLOR[selected_theme])
+colon1_text = Text(WIDTH/2,HEIGHT/4.5,":", font(SMALL_FONT), TEXT_COLOR[selected_theme])
+player2_text = Text(WIDTH/3.5,HEIGHT/3,"Name of player 2", font(SMALL_FONT), TEXT_COLOR[selected_theme])
+colon2_text = Text(WIDTH/2,HEIGHT/3,":", font(SMALL_FONT), TEXT_COLOR[selected_theme])
+input_list = [Input(WIDTH - WIDTH/3.5,HEIGHT/i,"", font(SMALL_FONT), "dead", TEXT_COLOR[selected_theme]) for i in [4.5, 3]]
 play_surface = pygame.image.load("./media/images/play.png").convert_alpha()
-play_surface = pygame.transform.scale(play_surface, (WIDTH/7, HEIGHT/9.5))
-play_rect = play_surface.get_rect(center=(WIDTH/2,HEIGHT/1.9))
+play_surface = pygame.transform.scale(play_surface, (WIDTH/8, HEIGHT/11))
+play_rect = play_surface.get_rect(center=(WIDTH/2,HEIGHT/2))
+choose_theme_surface = pygame.image.load("./media/images/theme.png")
+choose_theme_surface = pygame.transform.scale(choose_theme_surface, (WIDTH/8, HEIGHT/11))
+choose_theme_rect = choose_theme_surface.get_rect(center=(WIDTH/2, HEIGHT/1.65))
+# Themes
+theme_rects = []
+for i, theme in enumerate(THEMES):
+    x = (WIDTH/4 - 20)  + (i%3) * (WIDTH/4+20)
+    y = HEIGHT/3.5 + (i // 3) * (HEIGHT/4+20)
+    image = THEME_BACKGROUNDS[theme]
+    image = pygame.transform.scale(image, (WIDTH // 5, HEIGHT // 4))
+    rect = image.get_rect(center=(x, y))
+    theme_rects.append((theme, image, rect))
 # Catapults
 catapult_image_left = pygame.image.load("./media/images/catapult.png").convert_alpha()
 catapult_image_left = pygame.transform.scale(catapult_image_left, CATAPULT_SIZE)
@@ -37,12 +54,10 @@ catapult_image_right = pygame.transform.flip(catapult_image_left, True, False)
 catapult_left = (WIDTH/7, HEIGHT-GROUND-CATAPULT_SIZE[1])
 catapult_right = (WIDTH*(6/7)-CATAPULT_SIZE[0], HEIGHT-GROUND-CATAPULT_SIZE[1])
 # Back-ground
-background_img = pygame.image.load("./media/images/back.jpg").convert_alpha() # To be changed before submitting
-background_img = pygame.transform.scale(background_img, (WIDTH, HEIGHT))
+background_img = THEME_BACKGROUNDS[selected_theme]
 # Prediction image
 circle_image = pygame.image.load("./media/images/circle.png").convert_alpha()
 # Difficulty choosing
-diff_text = Text(WIDTH/2, HEIGHT/3, "Select Difficulty (1-4)", angry_font(WHO_START_FONT), (0,0,0))
 diff_surfaces = [pygame.image.load(f"./media/images/levels/{i}.png").convert_alpha() for i in (1,2,3,4)]
 diff_surfaces = [pygame.transform.scale(s, DIFF_SIZE) for s in diff_surfaces]
 diff_rects = []
@@ -58,7 +73,7 @@ pause_image = pygame.image.load("./media/images/pause_options/pause.png").conver
 pause_image = pygame.transform.scale(pause_image, DIFF_SIZE)
 pause_rect = pause_image.get_rect(center = (WIDTH*(15/16), HEIGHT/10))
 dim_surface = pygame.Surface((WIDTH, HEIGHT))  # same size as screen
-dim_surface.set_alpha(50)  # 0 = fully transparent, 255 = fully opaque
+dim_surface.set_alpha(50)
 dim_surface.fill((0, 0, 0))
 resume_img = pygame.image.load("./media/images/pause_options/resume.png").convert_alpha()
 resume_img = pygame.transform.scale(resume_img, (BUTTON_W, BUTTON_H))
@@ -79,8 +94,8 @@ play_again_rect_clickable.y += cut_height
 play_again_rect_clickable.height -= cut_height
 winner_text = None
 # Initiation
-left_birds = [Bird(catapult_left[0]+CATAPULT_SIZE[0]+(BIRD_SIZE+4)*i, catapult_left[1]+CATAPULT_SIZE[1]-BIRD_SIZE, type, "left") for i,type in enumerate(BIRD_OPTIONS)]
-right_birds = [Bird(catapult_right[0]-(BIRD_SIZE+4)*i-BIRD_SIZE, catapult_left[1]+CATAPULT_SIZE[1]-BIRD_SIZE, type, "right") for i,type in enumerate(BIRD_OPTIONS)]
+left_birds = [Bird(GROUND, catapult_left[0]+CATAPULT_SIZE[0]+(BIRD_SIZE+4)*i, catapult_left[1]+CATAPULT_SIZE[1]-BIRD_SIZE, type, "left") for i,type in enumerate(BIRD_OPTIONS)]
+right_birds = [Bird(GROUND, catapult_right[0]-(BIRD_SIZE+4)*i-BIRD_SIZE, catapult_left[1]+CATAPULT_SIZE[1]-BIRD_SIZE, type, "right") for i,type in enumerate(BIRD_OPTIONS)]
 turn = random.choice(["left", "right"]) # Current turn 
 start_turn = turn # Who starts the match
 running = True
@@ -122,12 +137,16 @@ while running:
         player2_text.draw(screen)
         colon2_text.draw(screen)
         draw_inputs(screen, input_list)
-        screen.blit(play_surface, play_rect)
+        screen.blit(play_surface, play_rect) 
+        screen.blit(choose_theme_surface, choose_theme_rect)
         for event in events:
             if event.type == pygame.MOUSEBUTTONDOWN:
+                if choose_theme_rect.collidepoint(event.pos):
+                    game_state = "theme"
+                    break
                 if (play_rect.collidepoint(event.pos) and len(input_list[0].text)>0 and len(input_list[1].text)>0):
                     game_state="difficulty"
-                    name_1, name_2 = make_texts(input_list)
+                    name_1, name_2 = make_texts(input_list, selected_theme)
                 for my_input in input_list:
                     if my_input.outline_rect.collidepoint(event.pos):
                         my_input.state = "alive"
@@ -144,7 +163,7 @@ while running:
                             elif i==1 and my_input.text!="":
                                 my_input.state = "dead"
                                 game_state="difficulty"
-                                name_1, name_2 = make_texts(input_list)
+                                name_1, name_2 = make_texts(input_list, selected_theme)
                             my_input.update()
                         elif event.key == pygame.K_BACKSPACE:
                             my_input.text = my_input.text[:-1]
@@ -161,7 +180,7 @@ while running:
                     if event.key == pygame.K_RETURN:
                         if len(input_list[0].text)>0 and len(input_list[1].text)>0:
                             game_state="difficulty"
-                            name_1, name_2 = make_texts(input_list)
+                            name_1, name_2 = make_texts(input_list, selected_theme)
                         elif len(input_list[0].text)>0 and len(input_list[1].text)==0:
                             input_list[1].state="alive"
                             input_list[1].update()
@@ -169,10 +188,39 @@ while running:
                             input_list[0].state="alive"
                             input_list[0].update()
 
+    elif game_state == "theme":
+        screen.fill((255,255,255))
+        screen.blit(background_img, (0,0))
+        Text(WIDTH/2, HEIGHT/10, "Choose a Theme", font(BIG_FONT), TEXT_COLOR[selected_theme]).draw(screen)
+        for theme, image, rect in theme_rects:
+            draw_rounded_image_with_border(screen, image, rect, border_color=(0, 0, 0), border_thickness=3, radius=25)
+        for event in events:
+            if event.type == pygame.MOUSEBUTTONDOWN:
+                for theme, _, rect in theme_rects:
+                    if rect.collidepoint(event.pos):
+                        selected_theme = theme
+                        background_img = THEME_BACKGROUNDS[theme]
+                        GROUND = GROUND_LEVEL[theme]
+                        if (selected_theme=="space"):
+                            catapult_left = (WIDTH/7, HEIGHT-HEIGHT/7-CATAPULT_SIZE[1])
+                            catapult_right = (WIDTH*(6/7)-CATAPULT_SIZE[0], HEIGHT-HEIGHT/7-CATAPULT_SIZE[1])
+                        else:
+                            catapult_left = (WIDTH/7, HEIGHT-GROUND-CATAPULT_SIZE[1])
+                            catapult_right = (WIDTH*(6/7)-CATAPULT_SIZE[0], HEIGHT-GROUND-CATAPULT_SIZE[1])
+                        left_birds = [Bird(GROUND, catapult_left[0]+CATAPULT_SIZE[0]+(BIRD_SIZE+4)*i, catapult_left[1]+CATAPULT_SIZE[1]-BIRD_SIZE, type, "left") for i,type in enumerate(BIRD_OPTIONS)]
+                        right_birds = [Bird(GROUND, catapult_right[0]-(BIRD_SIZE+4)*i-BIRD_SIZE, catapult_left[1]+CATAPULT_SIZE[1]-BIRD_SIZE, type, "right") for i,type in enumerate(BIRD_OPTIONS)]
+                        game_state = "menu"
+                        main_text = Text(WIDTH/2,HEIGHT/10,"Angry Birds", font(BIG_FONT), TEXT_COLOR[selected_theme])
+                        player1_text = Text(WIDTH/3.5,HEIGHT/4.5,"Name of player 1", font(SMALL_FONT), TEXT_COLOR[selected_theme])
+                        colon1_text = Text(WIDTH/2,HEIGHT/4.5,":", font(SMALL_FONT), TEXT_COLOR[selected_theme])
+                        player2_text = Text(WIDTH/3.5,HEIGHT/3,"Name of player 2", font(SMALL_FONT), TEXT_COLOR[selected_theme])
+                        colon2_text = Text(WIDTH/2,HEIGHT/3,":", font(SMALL_FONT), TEXT_COLOR[selected_theme])
+
+
     elif game_state == "difficulty":
         screen.fill((255,255,255))
         screen.blit(background_img, (0,0))
-        diff_text.draw(screen)
+        Text(WIDTH/2, HEIGHT/3, "Select Difficulty (1-4)", font(SMALL_FONT), TEXT_COLOR[selected_theme]).draw(screen)
         for surf, rect in zip(diff_surfaces, diff_rects):
             screen.blit(surf, rect)
         for event in events:
@@ -181,8 +229,10 @@ while running:
                 this_game_width  = DIFFICULTY_SETTINGS[diff]["width"]
                 this_game_height = DIFFICULTY_SETTINGS[diff]["height"]
                 this_game_WIND_MAX = DIFFICULTY_SETTINGS[diff]["wind_max"]
-                fortress_left  = Fortress("left", this_game_width, this_game_height)
-                fortress_right = Fortress("right", this_game_width, this_game_height)
+                if (selected_theme=="space"):
+                    this_game_WIND_MAX=0
+                fortress_left  = Fortress(GROUND, "left", this_game_width, this_game_height)
+                fortress_right = Fortress(GROUND, "right", this_game_width, this_game_height)
                 game_state = "game"
                 wind = 0
                 wind_timer = 0
@@ -195,8 +245,10 @@ while running:
                         this_game_width  = DIFFICULTY_SETTINGS[diff]["width"]
                         this_game_height = DIFFICULTY_SETTINGS[diff]["height"]
                         this_game_WIND_MAX = DIFFICULTY_SETTINGS[diff]["wind_max"]
-                        fortress_left  = Fortress("left", this_game_width, this_game_height)
-                        fortress_right = Fortress("right", this_game_width, this_game_height)
+                        if (selected_theme=="space"):
+                            this_game_WIND_MAX=0
+                        fortress_left  = Fortress(GROUND, "left", this_game_width, this_game_height)
+                        fortress_right = Fortress(GROUND, "right", this_game_width, this_game_height)
                         game_state = "game"
                         wind = 0
                         wind_timer = 0
@@ -215,7 +267,7 @@ while running:
         screen.blit(pause_image, pause_rect)
         name_1.draw(screen)
         name_2.draw(screen)
-        Text(WIDTH/2, HEIGHT/4, f'{(name_1.text if start_turn=="left" else name_2.text)} Starts first', angry_font(WHO_START_FONT), (0,0,0)).draw(screen)
+        Text(WIDTH/2, HEIGHT/4, f'{(name_1.text if start_turn=="left" else name_2.text)} Starts first', font(SMALL_FONT), TEXT_COLOR[selected_theme]).draw(screen)
         draw_birds(screen, left_birds, right_birds)
         draw_prediction(points_prediction, screen, circle_image)
         fortress_left.block_fall()
@@ -239,7 +291,7 @@ while running:
 
         if not wind_locked:     ################################
             wind_timer += dt/1000.0     ################################
-            raw_noise = fractal_noise_1d(wind_timer, seed=NOISE_SEED, octaves=5)     ################################
+            raw_noise = fractal_noise_1d(wind_timer*0.5, seed=NOISE_SEED, octaves=5)     ################################
             wind = this_game_WIND_MAX * raw_noise     ################################
             if now - wind_lock_start >= 1000*TIME_LIMIT:
                 wind_locked = True
@@ -254,8 +306,8 @@ while running:
             arrow_image = pygame.transform.flip(arrow_image, True, False)
         screen.blit(arrow_image, arrow_rect)
         remaining = max(0, TIME_LIMIT - (now - wind_lock_start)/1000.0)
-        timer_surf = angry_font(30).render(f"Wait: {remaining:.1f}s", True, (200, 0, 0))
-        screen.blit(timer_surf, (WIDTH - 180, 20)) if diff>1 else None
+        timer_surf = font(EXTRA_SMALL_FONT).render(f"Wait: {remaining:.1f}s", True, ((200, 0, 0) if selected_theme!="lava" else (255,255, 255)))
+        screen.blit(timer_surf, (WIDTH - 180, 20)) if this_game_WIND_MAX>0 else None
 
         if not active_bird:
             points_prediction=[]
@@ -303,7 +355,7 @@ while running:
                 active_bird.vx, active_bird.vy = temp_v[0], temp_v[1]
                 vx = temp_v[0]
                 vy = temp_v[1]
-            active_projectile = lambda x: (vy*x/vx) + (0.5*GRAVITY*(x**2/vx**2))
+            active_projectile = (lambda x: (vy*x/vx) + (0.5*GRAVITY*(x**2/vx**2))) if selected_theme!="space" else (lambda x: (vy*x/vx))
             if (not active_rectangle.collidepoint(pygame.mouse.get_pos())):
                 points_prediction = []
                 if (vx>0):
@@ -358,21 +410,25 @@ while running:
             left_no = 0
             right_no = 0
             bird_choosing_right = not bird_choosing_left
+            temp_game_choosing_time = pygame.time.get_ticks()
+
         
         if bird_choosing_right and not bird_choosing_left:
+            wind_lock_start += pygame.time.get_ticks()-temp_game_choosing_time
+            temp_game_choosing_time = pygame.time.get_ticks()
             for event in events:
                 if event.type == pygame.KEYDOWN:
                     if event.key == pygame.K_r:
-                        right_birds.append(Bird(catapult_right[0]-(BIRD_SIZE+4)*right_no-BIRD_SIZE, catapult_left[1]+CATAPULT_SIZE[1]-BIRD_SIZE, "red", "right"))
+                        right_birds.append(Bird(GROUND, catapult_right[0]-(BIRD_SIZE+4)*right_no-BIRD_SIZE, catapult_left[1]+CATAPULT_SIZE[1]-BIRD_SIZE, "red", "right"))
                         right_no += 1
                     elif event.key == pygame.K_c:
-                        right_birds.append(Bird(catapult_right[0]-(BIRD_SIZE+4)*right_no-BIRD_SIZE, catapult_left[1]+CATAPULT_SIZE[1]-BIRD_SIZE, "chuck", "right"))
+                        right_birds.append(Bird(GROUND, catapult_right[0]-(BIRD_SIZE+4)*right_no-BIRD_SIZE, catapult_left[1]+CATAPULT_SIZE[1]-BIRD_SIZE, "chuck", "right"))
                         right_no += 1
                     elif event.key == pygame.K_b:
-                        right_birds.append(Bird(catapult_right[0]-(BIRD_SIZE+4)*right_no-BIRD_SIZE, catapult_left[1]+CATAPULT_SIZE[1]-BIRD_SIZE, "blues", "right"))
+                        right_birds.append(Bird(GROUND, catapult_right[0]-(BIRD_SIZE+4)*right_no-BIRD_SIZE, catapult_left[1]+CATAPULT_SIZE[1]-BIRD_SIZE, "blues", "right"))
                         right_no += 1
                     elif event.key == pygame.K_m:
-                        right_birds.append(Bird(catapult_right[0]-(BIRD_SIZE+4)*right_no-BIRD_SIZE, catapult_left[1]+CATAPULT_SIZE[1]-BIRD_SIZE, "bomb", "right"))
+                        right_birds.append(Bird(GROUND, catapult_right[0]-(BIRD_SIZE+4)*right_no-BIRD_SIZE, catapult_left[1]+CATAPULT_SIZE[1]-BIRD_SIZE, "bomb", "right"))
                         right_no += 1
             if right_no>2:
                 if (start_turn=="left"):
@@ -389,22 +445,24 @@ while running:
                             break
 
         if bird_choosing_left and not bird_choosing_right:
+            wind_lock_start += pygame.time.get_ticks()-temp_game_choosing_time
+            temp_game_choosing_time = pygame.time.get_ticks()
             for event in events:
                 if event.type == pygame.KEYDOWN:
                     if event.key == pygame.K_r:
-                        left_birds.append(Bird(catapult_left[0]+CATAPULT_SIZE[0]+(BIRD_SIZE+4)*left_no, catapult_left[1]+CATAPULT_SIZE[1]-BIRD_SIZE, "red", "left"))
+                        left_birds.append(Bird(GROUND, catapult_left[0]+CATAPULT_SIZE[0]+(BIRD_SIZE+4)*left_no, catapult_left[1]+CATAPULT_SIZE[1]-BIRD_SIZE, "red", "left"))
                         left_no += 1
                         break
                     elif event.key == pygame.K_c:
-                        left_birds.append(Bird(catapult_left[0]+CATAPULT_SIZE[0]+(BIRD_SIZE+4)*left_no, catapult_left[1]+CATAPULT_SIZE[1]-BIRD_SIZE, "chuck", "left"))
+                        left_birds.append(Bird(GROUND, catapult_left[0]+CATAPULT_SIZE[0]+(BIRD_SIZE+4)*left_no, catapult_left[1]+CATAPULT_SIZE[1]-BIRD_SIZE, "chuck", "left"))
                         left_no += 1
                         break
                     elif event.key == pygame.K_b:
-                        left_birds.append(Bird(catapult_left[0]+CATAPULT_SIZE[0]+(BIRD_SIZE+4)*left_no, catapult_left[1]+CATAPULT_SIZE[1]-BIRD_SIZE, "blues", "left"))
+                        left_birds.append(Bird(GROUND, catapult_left[0]+CATAPULT_SIZE[0]+(BIRD_SIZE+4)*left_no, catapult_left[1]+CATAPULT_SIZE[1]-BIRD_SIZE, "blues", "left"))
                         left_no += 1
                         break
                     elif event.key == pygame.K_m:
-                        left_birds.append(Bird(catapult_left[0]+CATAPULT_SIZE[0]+(BIRD_SIZE+4)*left_no, catapult_left[1]+CATAPULT_SIZE[1]-BIRD_SIZE, "bomb", "left"))
+                        left_birds.append(Bird(GROUND, catapult_left[0]+CATAPULT_SIZE[0]+(BIRD_SIZE+4)*left_no, catapult_left[1]+CATAPULT_SIZE[1]-BIRD_SIZE, "bomb", "left"))
                         left_no += 1
                         break
             if left_no>2:
@@ -433,11 +491,11 @@ while running:
         screen.blit(catapult_image_right, catapult_right)
         name_1.draw(screen)
         name_2.draw(screen)
-        screen.blit(timer_surf, (WIDTH - 180, 20)) if diff>1 else None
+        screen.blit(timer_surf, (WIDTH - 180, 20)) if this_game_WIND_MAX>0 else None
         screen.blit(arrow_image, arrow_rect)
         draw_birds(screen, left_birds, right_birds)
         screen.blit(dim_surface, (0, 0))
-        Text(WIDTH/2, HEIGHT/4,  "PAUSED",      angry_font(MAIN_FONT),  (0,0,0)).draw(screen)
+        Text(WIDTH/2, HEIGHT/4, "PAUSED", font(BIG_FONT), TEXT_COLOR[selected_theme]).draw(screen)
         screen.blit(resume_img, resume_rect)
         screen.blit(replay_img, replay_rect)
         screen.blit(quit_img, quit_rect)
@@ -447,10 +505,10 @@ while running:
                 wind_lock_start += pygame.time.get_ticks()-temp_game_pause_time
                 break
             elif (event.type == pygame.KEYDOWN and event.key == pygame.K_r) or (event.type == pygame.MOUSEBUTTONDOWN and replay_rect.collidepoint(event.pos)):
-                fortress_left  = Fortress("left",  this_game_width,  this_game_height)
-                fortress_right = Fortress("right", this_game_width,  this_game_height)
-                left_birds  = [Bird(catapult_left[0]+CATAPULT_SIZE[0]+(BIRD_SIZE+4)*i, catapult_left[1]+CATAPULT_SIZE[1]-BIRD_SIZE, t, "left") for i,t in enumerate(BIRD_OPTIONS)]
-                right_birds = [Bird(catapult_right[0]-(BIRD_SIZE+4)*i-BIRD_SIZE, catapult_left[1]+CATAPULT_SIZE[1]-BIRD_SIZE, t, "right") for i,t in enumerate(BIRD_OPTIONS)]
+                fortress_left  = Fortress(GROUND, "left",  this_game_width,  this_game_height)
+                fortress_right = Fortress(GROUND, "right", this_game_width,  this_game_height)
+                left_birds  = [Bird(GROUND, catapult_left[0]+CATAPULT_SIZE[0]+(BIRD_SIZE+4)*i, catapult_left[1]+CATAPULT_SIZE[1]-BIRD_SIZE, t, "left") for i,t in enumerate(BIRD_OPTIONS)]
+                right_birds = [Bird(GROUND, catapult_right[0]-(BIRD_SIZE+4)*i-BIRD_SIZE, catapult_left[1]+CATAPULT_SIZE[1]-BIRD_SIZE, t, "right") for i,t in enumerate(BIRD_OPTIONS)]
                 start_turn = random.choice(["left", "right"])
                 turn = start_turn
                 wind = 0
@@ -476,11 +534,11 @@ while running:
 
     elif game_state == "end":
         if (win=="left"):
-            winner_text = Text(WIDTH/2, HEIGHT/1.7, f"{name_1.text} Won", angry_font(WINNER_TEXT_FONT), (0,0,0))
+            winner_text = Text(WIDTH/2, HEIGHT/1.7, f"{name_1.text} Won", font(MED_FONT), TEXT_COLOR[selected_theme])
         elif (win=="right"):
-            winner_text = Text(WIDTH/2, HEIGHT/1.7, f"{name_2.text} Won", angry_font(WINNER_TEXT_FONT), (0,0,0))
+            winner_text = Text(WIDTH/2, HEIGHT/1.7, f"{name_2.text} Won", font(MED_FONT), TEXT_COLOR[selected_theme])
         elif (win=="quit"):
-            winner_text = Text(WIDTH/2, HEIGHT/1.7, f"Game Quit", angry_font(WINNER_TEXT_FONT), (0,0,0))
+            winner_text = Text(WIDTH/2, HEIGHT/1.7, f"Game Quit", font(MED_FONT), TEXT_COLOR[selected_theme])
         screen.fill((255, 255, 255))
         screen.blit(background_img, (0, 0))
         main_text.draw(screen)
@@ -492,11 +550,9 @@ while running:
                 for my_input in input_list:
                     my_input.text = ""
                     my_input.update()
-                fortress_left = Fortress("left")
-                fortress_right = Fortress("right")
                 winner_text = None
-                left_birds = [Bird(catapult_left[0]+CATAPULT_SIZE[0]+38*i, catapult_left[1]+CATAPULT_SIZE[1]-BIRD_SIZE, type, "left") for i,type in enumerate(BIRD_OPTIONS)]
-                right_birds = [Bird(catapult_right[0]-38*i-35, catapult_left[1]+CATAPULT_SIZE[1]-BIRD_SIZE, type, "right") for i,type in enumerate(BIRD_OPTIONS)]
+                left_birds = [Bird(GROUND, catapult_left[0]+CATAPULT_SIZE[0]+38*i, catapult_left[1]+CATAPULT_SIZE[1]-BIRD_SIZE, type, "left") for i,type in enumerate(BIRD_OPTIONS)]
+                right_birds = [Bird(GROUND, catapult_right[0]-38*i-35, catapult_left[1]+CATAPULT_SIZE[1]-BIRD_SIZE, type, "right") for i,type in enumerate(BIRD_OPTIONS)]
                 turn = random.choice(["left", "right"])
                 start_turn = turn
                 win = None

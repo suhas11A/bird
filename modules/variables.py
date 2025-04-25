@@ -1,3 +1,5 @@
+import pygame # type: ignore
+
 BLOCK_HEALTH = {
     "wood": 100,
     "ice": 100,
@@ -31,18 +33,46 @@ MAX_COLLISIONS = 5
 fortress_width, fortress_height = 7,7  # To be tuned before submitting
 BIRD_SIZE = round(35 * (WIDTH/1400))
 BLOCK_SIZE = round(30 * (WIDTH/1400))
-WINNER_TEXT_FONT = round(40 * (WIDTH/1400))
-WHO_START_FONT = round(30 * (WIDTH/1400))
-PLAYER_NAME_FONT = round(30 * (WIDTH/1400))
-MAIN_FONT = round(50 * (WIDTH/1400))
+EXTRA_SMALL_FONT = round(25 * (WIDTH/1400))
+SMALL_FONT = round(30 * (WIDTH/1400))
+MED_FONT = round(40 * (WIDTH/1400))
+BIG_FONT = round(50 * (WIDTH/1400))
 BALL_SIZE = 17 * (WIDTH/1600)
 FACTOR_RED = 1.01 # Rate at which red bird grows
 FACTOR_CHUCK = 1.5 # Factor at which speed of chuck increases
-GROUND = HEIGHT/7
+THEMES = ["default", "space", "lava", "desert", "castle", "farm"]
+GROUND_LEVEL = {
+    "default" : (HEIGHT/7),
+    "space" : -(HEIGHT/5),
+    "desert" : (HEIGHT/13),
+    "farm" : (HEIGHT/9),
+    "castle" : (HEIGHT/8.6),
+    "lava" : (HEIGHT/8)
+}
+TEXT_COLOR = {
+    "default" : (0,0,0),
+    "space" : (255,255,255),
+    "desert" : (0,0,0),
+    "farm" : (0,0,0),
+    "castle" : (0,0,0),
+    "lava" : (255,225,105)
+}
+THEME_BACKGROUNDS = {
+    "default": "./media/images/backgrounds/default.png",
+    "space": "./media/images/backgrounds/space.png",
+    "desert": "./media/images/backgrounds/desert.png",
+    "farm": "./media/images/backgrounds/farm.png",
+    "castle": "./media/images/backgrounds/castle.png",
+    "lava": "./media/images/backgrounds/lava.png"
+}
+for theme in THEME_BACKGROUNDS:
+    background_img = pygame.image.load(THEME_BACKGROUNDS[theme])
+    background_img = pygame.transform.scale(background_img, (WIDTH, HEIGHT))
+    THEME_BACKGROUNDS[theme] = background_img
 NUM_FRAMES = 15
-wind_period = 6.0
+wind_period = 30 # To be tuned before submitting
 WIND_MUL = 50 # To be tuned before submitting
 TIME_LIMIT = 20
 NOISE_SEED = 1234
-BUTTON_W = 216
-BUTTON_H = 70
+BUTTON_W = round(216 * (WIDTH/1600))
+BUTTON_H = round(70 * (WIDTH/1600))

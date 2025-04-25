@@ -3,7 +3,8 @@ import numpy as np
 from modules.variables import *
 
 class Bird:
-    def __init__(self, x, y, bird_type, side, vx = 0, vy = 0, size = BIRD_SIZE, alive = True, active = False, on_cat = False, on_power = False):
+    def __init__(self, ground, x, y, bird_type, side, vx = 0, vy = 0, size = BIRD_SIZE, alive = True, active = False, on_cat = False, on_power = False):
+        self.ground = ground
         self.x = x
         self.y = y
         self.vx = vx
@@ -38,17 +39,20 @@ class Bird:
             return
         self.x += self.vx*self.dt
         self.y += self.vy*self.dt
-        self.vy += GRAVITY*self.dt
+        if (self.ground<0):
+            pass
+        else:
+            self.vy += GRAVITY*self.dt
         wind = self.wind
         if (wind!=0):
             self.vx += (wind**2)*(wind/abs(wind))*WIND_MUL*self.dt
 
-        if self.y < -(HEIGHT/2) or self.x > (WIDTH*4/3) or self.x < -(WIDTH/3):
+        if self.y < -(50) or self.x > (WIDTH+(400)) or self.x < -(40):
             self.alive = False
             self.active = False
             self.on_cat = False
-        if self.y>((HEIGHT-GROUND)-self.size) and self.vy>0 :
-            self.y = (HEIGHT-GROUND)-self.size
+        if self.y>((HEIGHT-self.ground)-self.size) and self.vy>0 :
+            self.y = (HEIGHT-self.ground)-self.size
             self.vy *= -e
             self.collisions += 1
 
@@ -71,11 +75,11 @@ class Bird:
             self.alive = False
             self.on_power = True
             wind = self.wind
-            bird_list.append(Bird(self.x, self.y, self.bird_type, self.side, self.vx, self.vy, self.size, True, True, False, True))
+            bird_list.append(Bird(self.ground, self.x, self.y, self.bird_type, self.side, self.vx, self.vy, self.size, True, True, False, True))
             temp_bird = bird_list[-1]
             temp_bird.explosion_pos = (temp_bird.x, temp_bird.y)
-            bird_list.append(Bird(self.x, self.y, self.bird_type, self.side, self.vx, self.vy+200, self.size, True, True, False, True))
-            bird_list.append(Bird(self.x, self.y, self.bird_type, self.side, self.vx, self.vy-200, self.size, True, True, False, True))
+            bird_list.append(Bird(self.ground, self.x, self.y, self.bird_type, self.side, self.vx, self.vy+200, self.size, True, True, False, True))
+            bird_list.append(Bird(self.ground, self.x, self.y, self.bird_type, self.side, self.vx, self.vy-200, self.size, True, True, False, True))
             for i in range(3):
                 bird_list[-(i+1)].wind = wind
         elif self.bird_type == "red":

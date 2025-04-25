@@ -5,6 +5,9 @@ put powers of birds:
 make it scalable
 report.pdf
 slow the birds down so that user has more control and also tune all the constants
+sound effects
+put images in astro like a fish bowl
+find out how gpt code works
 
 advanced
 
