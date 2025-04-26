@@ -18,7 +18,7 @@ class Input:
         self.outline_rect = self.outline_surface.get_rect(center=(self.x,self.y))
 
     def draw(self, screen):
-        draw_rounded_image_with_border(screen, self.outline_surface, self.outline_rect, border_color=(0, 0, 0), border_thickness=0, radius=14)
+        draw_rounded_image_with_border(screen, self.outline_surface, self.outline_rect, border_color=(0, 0, 0), border_thickness=0, radius=round(14*(WIDTH/1600)))
         screen.blit(self.text_surface, self.text_rect)
     
     def update(self):

@@ -19,10 +19,13 @@ class Bird:
         self.on_power = on_power
         self.collisions = 0
         self.og_image = pygame.image.load(f"./media/images/birds/{self.bird_type}.png").convert_alpha()
+        self.og_astro_image = pygame.image.load(f"./media/images/birds/helmet.png").convert_alpha()
         if (self.side=="right"):
             self.og_image = pygame.transform.flip(self.og_image, True, False)
+            self.og_astro_image = pygame.transform.flip(self.og_astro_image, True, False)
         self.image = pygame.transform.scale(self.og_image, (self.size, self.size))
-        self.mask = pygame.mask.from_surface(self.image)
+        self.astro_image = pygame.transform.scale(self.og_astro_image, (1.5*self.size, 1.8*self.size))
+        self.mask = pygame.mask.from_surface(self.astro_image)
         self.wind = None
         self.explosion_frames = []
         self.explosion_index = 0
@@ -47,7 +50,7 @@ class Bird:
         if (wind!=0):
             self.vx += (wind**2)*(wind/abs(wind))*WIND_MUL*self.dt
 
-        if self.y < -(50) or self.x > (WIDTH+(400)) or self.x < -(40):
+        if self.y < -(50) or self.x > (WIDTH+(40)) or self.x < -(40):
             self.alive = False
             self.active = False
             self.on_cat = False
@@ -87,7 +90,8 @@ class Bird:
             self.y -= (FACTOR_RED-1)*(BIRD_SIZE)/2
             self.size += (FACTOR_RED-1)*BIRD_SIZE
             self.image = pygame.transform.scale(self.og_image, (self.size, self.size))
-            self.mask = pygame.mask.from_surface(self.image)
+            self.mask = pygame.mask.from_surface(self.astro_image)
+            self.astro_image = pygame.transform.scale(self.og_astro_image, (1.5*self.size, 1.8*self.size))
             if (self.size >= 1.5*BIRD_SIZE):
                 self.on_power = True
         elif self.bird_type == "bomb":
@@ -115,6 +119,16 @@ class Bird:
             return    ################################
         elif (self.bird_type!="bomb" or not self.on_power):
             screen.blit(self.image, (self.x, self.y))
+            if (self.ground<0):
+                if (self.vx>0):
+                    screen.blit(self.astro_image, (self.x-(self.size/2.4), self.y-(self.size/3)))
+                elif(self.vx<0):
+                    screen.blit(self.astro_image, (self.x-(self.size*0.5-self.size/2.4), self.y-(self.size/3)))
+                else:
+                    if (self.side == "left"):
+                        screen.blit(self.astro_image, (self.x-(self.size/2.4), self.y-(self.size/3)))
+                    else:
+                        screen.blit(self.astro_image, (self.x-(self.size*0.5-self.size/2.4), self.y-(self.size/3)))
 
     def get_rect(self):
         return pygame.Rect(self.x, self.y, self.size, self.size)

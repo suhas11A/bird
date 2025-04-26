@@ -47,6 +47,8 @@ class Fortress:
                 bird.vx *= -e
                 bird.image = pygame.transform.flip(bird.image, True, False)
                 bird.og_image = pygame.transform.flip(bird.og_image, True, False)
+                bird.og_astro_image = pygame.transform.flip(bird.og_astro_image, True, False)
+                bird.astro_image = pygame.transform.flip(bird.astro_image, True, False)
             else:
                 bird.y -= bird.vy*bird.dt
                 bird.vy *= -e
