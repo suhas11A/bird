@@ -13,7 +13,7 @@ from modules.fortress import *
 from modules.helper import *
 
 pygame.init()
-# pygame.mixer.init(frequency=44100, size=-16, channels=2, buffer=512)
+pygame.mixer.init(frequency=44100, size=-16, channels=2, buffer=512)
 
 screen = pygame.display.set_mode((WIDTH, HEIGHT))
 angry_font = lambda x : pygame.font.Font("./media/fonts/angry.ttf", x)
@@ -22,12 +22,12 @@ pygame.display.set_caption("Angry Birds - 2 Player")
 clock = pygame.time.Clock()
 pygame.key.set_repeat(400, 50)
 
-# pygame.mixer.music.load("./media/audio/music/background.ogg")  
-# pygame.mixer.music.set_volume(0.5)
-# pygame.mixer.music.play(loops=-1)
-# launch_sfx     = pygame.mixer.Sound("./media/sounds/launch.wav")
-# collision_sfx  = pygame.mixer.Sound("./media/sounds/hit.wav")
-# explosion_sfx  = pygame.mixer.Sound("./media/sounds/explosion.wav")
+pygame.mixer.music.load("./media/audio/music/background.wav")  
+pygame.mixer.music.set_volume(0.5)
+pygame.mixer.music.play(loops=-1)
+on_launch_sfx     = pygame.mixer.Sound("./media/audio/sounds/on_launch.wav")
+on_select_sfx  = pygame.mixer.Sound("./media/audio/sounds/on_select.wav")
+on_power_sfx  = pygame.mixer.Sound("./media/audio/sounds/on_power.wav")
 
 # Default theme
 selected_theme = "default"
@@ -367,6 +367,8 @@ while running:
                 for event in events:
                     for i in (left_birds if turn=="left" else right_birds):
                         if (event.type == pygame.MOUSEBUTTONDOWN and i.get_rect().collidepoint(pygame.mouse.get_pos())):
+                            if active_bird is None or i != active_bird:
+                                on_select_sfx.play()
                             if active_bird:
                                 active_bird.x = i.x
                                 active_bird.y = i.y
@@ -414,6 +416,7 @@ while running:
                     active_bird.vx, active_bird.vy = vx, vy
                     active_bird.wind = wind
                     turn = "left" if turn=="right" else "right"
+                    on_launch_sfx.play()
                 elif (event.type == pygame.MOUSEBUTTONUP and active_rectangle.collidepoint(pygame.mouse.get_pos())):
                     active_bird.on_cat = True
                     mouse_down = False
@@ -425,6 +428,7 @@ while running:
             if (not active_bird.on_power) and (active_bird.collisions==0):
                 for event in events:
                     if (event.type == pygame.MOUSEBUTTONDOWN or (event.type==pygame.KEYDOWN and event.key==pygame.K_SPACE)):
+                        on_power_sfx.play()
                         active_bird.apply_power(left_birds if turn=="left" else right_birds, active_fortress)
                         active_bird.explosion_pos = (active_bird.x, active_bird.y)
             if active_bird.bird_type == "blues" and active_bird.on_power == True:
