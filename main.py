@@ -10,8 +10,7 @@ from modules.variables import *
 from modules.text import *
 from modules.input import *
 from modules.fortress import *
-from modules.wind import *
-from modules.rounded import *
+from modules.helper import *
 
 pygame.init()
 
@@ -212,6 +211,7 @@ while running:
                         else:
                             catapult_left = (WIDTH/7, HEIGHT-GROUND-CATAPULT_SIZE[1])
                             catapult_right = (WIDTH*(6/7)-CATAPULT_SIZE[0], HEIGHT-GROUND-CATAPULT_SIZE[1])
+                            bird_space = 4 * (WIDTH/1600)
                         left_birds = [Bird(GROUND, catapult_left[0]+CATAPULT_SIZE[0]+(BIRD_SIZE+bird_space)*i, catapult_left[1]+CATAPULT_SIZE[1]-BIRD_SIZE, type, "left") for i,type in enumerate(BIRD_OPTIONS)]
                         right_birds = [Bird(GROUND, catapult_right[0]-(BIRD_SIZE+bird_space)*i-BIRD_SIZE, catapult_left[1]+CATAPULT_SIZE[1]-BIRD_SIZE, type, "right") for i,type in enumerate(BIRD_OPTIONS)]
                         game_state = "menu"
@@ -556,8 +556,8 @@ while running:
                     my_input.text = ""
                     my_input.update()
                 winner_text = None
-                left_birds = [Bird(GROUND, catapult_left[0]+CATAPULT_SIZE[0]+38*i, catapult_left[1]+CATAPULT_SIZE[1]-BIRD_SIZE, type, "left") for i,type in enumerate(BIRD_OPTIONS)]
-                right_birds = [Bird(GROUND, catapult_right[0]-38*i-35, catapult_left[1]+CATAPULT_SIZE[1]-BIRD_SIZE, type, "right") for i,type in enumerate(BIRD_OPTIONS)]
+                left_birds = [Bird(GROUND, catapult_left[0]+CATAPULT_SIZE[0]+(BIRD_SIZE+bird_space)*i, catapult_left[1]+CATAPULT_SIZE[1]-BIRD_SIZE, type, "left") for i,type in enumerate(BIRD_OPTIONS)]
+                right_birds = [Bird(GROUND, catapult_right[0]-(BIRD_SIZE+bird_space)*i-35, catapult_left[1]+CATAPULT_SIZE[1]-BIRD_SIZE, type, "right") for i,type in enumerate(BIRD_OPTIONS)]
                 turn = random.choice(["left", "right"])
                 start_turn = turn
                 win = None

@@ -38,9 +38,9 @@ class Block:
             int(bird_rect.y - block_rect.y)
         )
         if self.mask.overlap(bird.mask, offset):
-            if ((self.x < bird.x + bird.size <= self.x + bird.vx * bird.dt* 2) and bird.side=="left"):
+            if ((self.x < bird.x + bird.size <= self.x + bird.vx * bird.dt * 1.5) and bird.side=="left"):
                 return True, "side"
-            elif ((self.x + self.size + bird.vx * bird.dt * 2 <= bird.x < self.x + self.size) and bird.side=="right"):
+            elif ((self.x + self.size + bird.vx * bird.dt * 1.5 <= bird.x < self.x + self.size) and bird.side=="right"):
                 return True, "side"
             else:
                 return True, "top"

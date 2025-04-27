@@ -43,14 +43,14 @@ class Fortress:
                 collide_mode = True
         if collide_mode:
             if (collision_face=="side"):
-                bird.x -= bird.vx*bird.dt
+                bird.x -= bird.vx*bird.dt/1.5
                 bird.vx *= -e
                 bird.image = pygame.transform.flip(bird.image, True, False)
                 bird.og_image = pygame.transform.flip(bird.og_image, True, False)
                 bird.og_astro_image = pygame.transform.flip(bird.og_astro_image, True, False)
                 bird.astro_image = pygame.transform.flip(bird.astro_image, True, False)
             else:
-                bird.y -= bird.vy*bird.dt
+                bird.y -= bird.vy*bird.dt/1.5
                 bird.vy *= -e
             collide_mode = False
             bird.collisions += 1
@@ -60,9 +60,9 @@ class Fortress:
             return
         for block in self.list:
             if block.is_falling:
-                block.y += block.vy*block.dt
-                block.x += block.vx*block.dt
-                block.vy += GRAVITY*block.dt/2
+                block.y += block.vy*block.dt/1.5
+                block.x += block.vx*block.dt/1.5
+                block.vy += GRAVITY*block.dt/3
                 block.rect = pygame.Rect(block.x, block.y, block.size, block.size)
         for cord in [(i, j) for i in range(self.width) for j in range(self.height)]:
             if cord not in self.cordinates:

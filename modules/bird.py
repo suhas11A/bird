@@ -25,7 +25,7 @@ class Bird:
             self.og_astro_image = pygame.transform.flip(self.og_astro_image, True, False)
         self.image = pygame.transform.scale(self.og_image, (self.size, self.size))
         self.astro_image = pygame.transform.scale(self.og_astro_image, (1.5*self.size, 1.8*self.size))
-        self.mask = pygame.mask.from_surface(self.astro_image)
+        self.mask = pygame.mask.from_surface(self.image)
         self.wind = None
         self.explosion_frames = []
         self.explosion_index = 0
@@ -40,15 +40,15 @@ class Bird:
     def update(self):
         if ((not self.alive) or (not self.active)):
             return
-        self.x += self.vx*self.dt
-        self.y += self.vy*self.dt
+        self.x += self.vx*self.dt/1.5
+        self.y += self.vy*self.dt/1.5
         if (self.ground<0):
             pass
         else:
-            self.vy += GRAVITY*self.dt
+            self.vy += GRAVITY*self.dt/1.5
         wind = self.wind
         if (wind!=0):
-            self.vx += (wind**2)*(wind/abs(wind))*WIND_MUL*self.dt
+            self.vx += (wind**2)*(wind/abs(wind))*WIND_MUL*self.dt/1.5
 
         if self.y < -(50) or self.x > (WIDTH+(40)) or self.x < -(40):
             self.alive = False
@@ -90,7 +90,7 @@ class Bird:
             self.y -= (FACTOR_RED-1)*(BIRD_SIZE)/2
             self.size += (FACTOR_RED-1)*BIRD_SIZE
             self.image = pygame.transform.scale(self.og_image, (self.size, self.size))
-            self.mask = pygame.mask.from_surface(self.astro_image)
+            self.mask = pygame.mask.from_surface(self.image)
             self.astro_image = pygame.transform.scale(self.og_astro_image, (1.5*self.size, 1.8*self.size))
             if (self.size >= 1.5*BIRD_SIZE):
                 self.on_power = True

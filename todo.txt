@@ -2,11 +2,9 @@ basic
 
 put powers of birds:
     fix bomb damage formula and bomb is not going away
-make it scalable
 report.pdf
-slow the birds down so that user has more control and also tune all the constants
+tune all the constants
 sound effects
-put images in astro like a fish bowl
 find out how gpt code works
 
 advanced

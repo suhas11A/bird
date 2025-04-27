@@ -1,7 +1,7 @@
 import pygame # type: ignore
 from modules.variables import *
 from modules.text import *
-from modules.rounded import *
+from modules.helper import *
 
 class Input:
     def __init__(self, x, y, text, font, state, text_color = (255, 255, 255)):
