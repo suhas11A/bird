@@ -1,16 +1,15 @@
 basic
 
 put powers of birds:
-    fix bomb damage formula and bomb is not going away
+    fix bomb damage formula
 report.pdf
 tune all the constants
 sound effects
 find out how gpt code works
+see marking scheme
 
 advanced
 
 levels : moving blocks
-scoring system based on precision of impact, high score leader leaderboard across sessions
 make 5 different variations in block health and you might have to scale the blocks bigger accordingly
 other things your wish
-custom theme

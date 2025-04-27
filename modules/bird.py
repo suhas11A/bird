@@ -3,7 +3,8 @@ import numpy as np
 from modules.variables import *
 
 class Bird:
-    def __init__(self, ground, x, y, bird_type, side, vx = 0, vy = 0, size = BIRD_SIZE, alive = True, active = False, on_cat = False, on_power = False):
+    def __init__(self, image_pack, ground, x, y, bird_type, side, vx = 0, vy = 0, size = BIRD_SIZE, alive = True, active = False, on_cat = False, on_power = False):
+        self.image_pack = image_pack
         self.ground = ground
         self.x = x
         self.y = y
@@ -18,13 +19,18 @@ class Bird:
         self.on_cat = on_cat
         self.on_power = on_power
         self.collisions = 0
-        self.og_image = pygame.image.load(f"./media/images/birds/{self.bird_type}.png").convert_alpha()
-        self.og_astro_image = pygame.image.load(f"./media/images/birds/helmet.png").convert_alpha()
+        if (self.ground<0):
+            self.og_astro_image = image_pack[1]
+            if (self.side=="right"):
+                self.og_astro_image = pygame.transform.flip(self.og_astro_image, True, False)
+            self.astro_image = pygame.transform.scale(self.og_astro_image, (1.5*self.size, 1.8*self.size))
+        else:
+            self.og_astro_image= None
+            self.astro_image = None
+        self.og_image = image_pack[0][bird_type]
         if (self.side=="right"):
-            self.og_image = pygame.transform.flip(self.og_image, True, False)
-            self.og_astro_image = pygame.transform.flip(self.og_astro_image, True, False)
+                self.og_image = pygame.transform.flip(self.og_image, True, False)
         self.image = pygame.transform.scale(self.og_image, (self.size, self.size))
-        self.astro_image = pygame.transform.scale(self.og_astro_image, (1.5*self.size, 1.8*self.size))
         self.mask = pygame.mask.from_surface(self.image)
         self.wind = None
         self.explosion_frames = []
@@ -32,10 +38,7 @@ class Bird:
         self.explosion_time = 0
         self.explosion_pos = None
         if self.bird_type == "bomb":
-            for i in range(NUM_FRAMES):
-                img = pygame.image.load(f"./media/images/explosion_frames/frame_{i}.png").convert_alpha()
-                img = pygame.transform.scale(img, (self.size * 7, self.size * 7))
-                self.explosion_frames.append(img)
+            self.explosion_frames = image_pack[2]
 
     def update(self):
         if ((not self.alive) or (not self.active)):
@@ -78,11 +81,11 @@ class Bird:
             self.alive = False
             self.on_power = True
             wind = self.wind
-            bird_list.append(Bird(self.ground, self.x, self.y, self.bird_type, self.side, self.vx, self.vy, self.size, True, True, False, True))
+            bird_list.append(Bird(self.image_pack, self.ground, self.x, self.y, self.bird_type, self.side, self.vx, self.vy, self.size, True, True, False, True))
             temp_bird = bird_list[-1]
             temp_bird.explosion_pos = (temp_bird.x, temp_bird.y)
-            bird_list.append(Bird(self.ground, self.x, self.y, self.bird_type, self.side, self.vx, self.vy+200, self.size, True, True, False, True))
-            bird_list.append(Bird(self.ground, self.x, self.y, self.bird_type, self.side, self.vx, self.vy-200, self.size, True, True, False, True))
+            bird_list.append(Bird(self.image_pack, self.ground, self.x, self.y, self.bird_type, self.side, self.vx, self.vy+200, self.size, True, True, False, True))
+            bird_list.append(Bird(self.image_pack, self.ground, self.x, self.y, self.bird_type, self.side, self.vx, self.vy-200, self.size, True, True, False, True))
             for i in range(3):
                 bird_list[-(i+1)].wind = wind
         elif self.bird_type == "red":
@@ -102,9 +105,10 @@ class Bird:
             self.explosion_time = pygame.time.get_ticks()    ################################
             for block in fortress.list:
                 dist = np.linalg.norm(np.array(self.explosion_pos)-np.array(block.get_centre())+np.array((self.size, self.size)))
-                block.health -= BIRD_DAMAGE[self.bird_type][block.type]*(2/(1+(abs(round(dist/75))**2))) # To be tuned before submitting
-                print(BIRD_DAMAGE[self.bird_type][block.type]*(2/(1+(abs(round(dist/75))**2))))
-                block.update_image()
+                damage = BIRD_DAMAGE[self.bird_type][block.type]*(2/(1+(abs(round(dist/75))**2)))
+                block.health -= damage # To be tuned before submitting
+                print(damage)
+                block.update_image(damage)
         elif self.bird_type == "chuck":
             self.on_power = True
             self.vx *= FACTOR_CHUCK

@@ -57,7 +57,7 @@ TEXT_COLOR = {
     "castle" : (0,0,0),
     "lava" : (255,225,105)
 }
-THEME_BACKGROUNDS = {
+THEME_BACKGROUNDS_PATH = {
     "default": "./media/images/backgrounds/default.png",
     "space": "./media/images/backgrounds/space.png",
     "desert": "./media/images/backgrounds/desert.png",
@@ -65,10 +65,6 @@ THEME_BACKGROUNDS = {
     "castle": "./media/images/backgrounds/castle.png",
     "lava": "./media/images/backgrounds/lava.png"
 }
-for theme in THEME_BACKGROUNDS:
-    background_img = pygame.image.load(THEME_BACKGROUNDS[theme])
-    background_img = pygame.transform.scale(background_img, (WIDTH, HEIGHT))
-    THEME_BACKGROUNDS[theme] = background_img
 NUM_FRAMES = 15
 wind_period = 30 # To be tuned before submitting
 WIND_MUL = 50 # To be tuned before submitting

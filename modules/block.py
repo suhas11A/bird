@@ -2,7 +2,7 @@ import pygame # type: ignore
 from modules.variables import *
 
 class Block:
-    def __init__(self, x, y, block_type, side = "left", size = BLOCK_SIZE):
+    def __init__(self, image_pack, x, y, block_type, side = "left", size = BLOCK_SIZE):
         self.x = x
         self.y = y
         self.size = size
@@ -11,10 +11,10 @@ class Block:
         self.block_type = block_type
         self.health = BLOCK_HEALTH[block_type]
         self.side = side
-        self.image = pygame.image.load(f"./media/images/blocks/{self.block_type}_1.png").convert_alpha()
+        self.image = image_pack[0][block_type]
         if (self.side=="right"):
             self.image = pygame.transform.flip(self.image, True, False)
-        self.image = pygame.transform.scale(self.image, (self.size, self.size))
+        self.future_use_image = image_pack[1][block_type]
         self.vx = 0
         self.vy = 0
         self.is_falling = False
@@ -33,10 +33,7 @@ class Block:
             return False, collision_face
         block_rect = self.rect
         bird_rect  = bird.get_rect()
-        offset = (
-            int(bird_rect.x - block_rect.x),
-            int(bird_rect.y - block_rect.y)
-        )
+        offset = (int(bird_rect.x - block_rect.x), int(bird_rect.y - block_rect.y))
         if self.mask.overlap(bird.mask, offset):
             if ((self.x < bird.x + bird.size <= self.x + bird.vx * bird.dt * 1.5) and bird.side=="left"):
                 return True, "side"
@@ -46,9 +43,9 @@ class Block:
                 return True, "top"
         return False, collision_face
 
-    def update_image(self):
-        if (self.health<=50):
-            self.image = pygame.image.load(f"./media/images/blocks/{self.block_type}_2.png").convert_alpha()
+    def update_image(self, damage):
+        if ((0<self.health<=50) and self.health+damage>50):
+            self.image = self.future_use_image
             if (self.side == "right"):
                 self.image = pygame.transform.flip(self.image, True, False)
             self.image = pygame.transform.scale(self.image, (self.size, self.size))
@@ -56,7 +53,7 @@ class Block:
     def apply_damage(self, bird):
         damage = BIRD_DAMAGE[bird.bird_type][self.type]*(((bird.vx**2+bird.vy**2)**0.5)/1000)*(self.size/BIRD_SIZE)
         self.health -= damage
-        self.update_image()
+        self.update_image(damage)
         if self.health < 0:
             self.health = 0
 

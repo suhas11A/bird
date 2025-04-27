@@ -5,7 +5,7 @@ from modules.block import *
 from modules.variables import *
 
 class Fortress:
-    def __init__(self, ground, side, width = fortress_width, height = fortress_height):
+    def __init__(self, image_pack,  ground, side, width = fortress_width, height = fortress_height):
         if (ground<0):
             ground = (HEIGHT/7)
             self.theme = "space"
@@ -15,9 +15,9 @@ class Fortress:
         block_randoms = [BLOCK_OPTIONS[i%3] for i in range(width * height)]
         random.shuffle(block_randoms)
         if (side=="left"):
-            self.list = [Block(50 + i * (BLOCK_SIZE), HEIGHT-ground-BLOCK_SIZE-(BLOCK_SIZE)*j, block_randoms[k],"left") for k,(i,j) in enumerate([(i, j) for i in range(width) for j in range(height)])]
+            self.list = [Block(image_pack, 50 + i * (BLOCK_SIZE), HEIGHT-ground-BLOCK_SIZE-(BLOCK_SIZE)*j, block_randoms[k],"left") for k,(i,j) in enumerate([(i, j) for i in range(width) for j in range(height)])]
         else :
-            self.list = [Block(WIDTH - (50+BLOCK_SIZE) - i * (BLOCK_SIZE), HEIGHT-ground-BLOCK_SIZE-(BLOCK_SIZE)*j, block_randoms[k],"right") for k,(i,j) in enumerate([(i, j) for i in range(width) for j in range(height)])]
+            self.list = [Block(image_pack, WIDTH - (50+BLOCK_SIZE) - i * (BLOCK_SIZE), HEIGHT-ground-BLOCK_SIZE-(BLOCK_SIZE)*j, block_randoms[k],"right") for k,(i,j) in enumerate([(i, j) for i in range(width) for j in range(height)])]
         self.width = width
         self.height = height
         self.cordinates = [(i, j) for i in range(width) for j in range(height)]
