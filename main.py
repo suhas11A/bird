@@ -23,11 +23,12 @@ clock = pygame.time.Clock()
 pygame.key.set_repeat(400, 50)
 
 pygame.mixer.music.load("./media/audio/music/background.wav")  
-pygame.mixer.music.set_volume(0.5)
+pygame.mixer.music.set_volume(0.8)
 pygame.mixer.music.play(loops=-1)
-on_launch_sfx     = pygame.mixer.Sound("./media/audio/sounds/on_launch.wav")
-on_select_sfx  = pygame.mixer.Sound("./media/audio/sounds/on_select.wav")
-on_power_sfx  = pygame.mixer.Sound("./media/audio/sounds/on_power.wav")
+on_launch_sfx = pygame.mixer.Sound("./media/audio/sounds/on_launch.wav")
+on_select_sfx = pygame.mixer.Sound("./media/audio/sounds/on_select.wav")
+on_power_sfx = pygame.mixer.Sound("./media/audio/sounds/on_power.wav")
+collision_sfx = pygame.mixer.Sound("./media/audio/sounds/collision.wav")
 
 # Default theme
 selected_theme = "default"
@@ -45,6 +46,12 @@ play_rect = play_surface.get_rect(center=(WIDTH/2,HEIGHT/2))
 choose_theme_surface = pygame.image.load("./media/images/theme.png").convert_alpha()
 choose_theme_surface = pygame.transform.scale(choose_theme_surface, (WIDTH/8, HEIGHT/11))
 choose_theme_rect = choose_theme_surface.get_rect(center=(WIDTH/2, HEIGHT/1.65))
+mute_img = pygame.image.load("./media/images/sound_options/mute.png").convert_alpha()
+mute_img = pygame.transform.scale(mute_img, SOUND_SIZE)
+unmute_img = pygame.image.load("./media/images/sound_options/unmute.png").convert_alpha()
+unmute_img = pygame.transform.scale(unmute_img, SOUND_SIZE)
+sound_img = mute_img
+sound_rect = unmute_img.get_rect(center=(WIDTH*(1/25), HEIGHT/16))
 # Themes
 THEME_BACKGROUNDS = {}
 for theme in THEME_BACKGROUNDS_PATH:
@@ -105,7 +112,7 @@ for i, surf in enumerate(diff_surfaces):
 arrow_image_og = pygame.image.load("./media/images/arrow.png").convert_alpha()
 # Pause screen
 pause_image = pygame.image.load("./media/images/pause_options/pause.png").convert_alpha()
-pause_image = pygame.transform.scale(pause_image, DIFF_SIZE)
+pause_image = pygame.transform.scale(pause_image, PAUSE_SIZE)
 pause_rect = pause_image.get_rect(center = (WIDTH*(15/16), HEIGHT/10))
 dim_surface = pygame.Surface((WIDTH, HEIGHT))  # same size as screen
 dim_surface.set_alpha(50)
@@ -156,6 +163,7 @@ wind = 0 # Current wind
 wind_locked = False     ################################
 locked_wind = 0     ################################
 last_turn = turn # For wind timer
+muted = False
 
 while running:
     dt = clock.tick(FPS)
@@ -164,9 +172,26 @@ while running:
     for event in events:
         if event.type == pygame.QUIT:
             running = False
+        if (event.type == pygame.MOUSEBUTTONDOWN and sound_rect.collidepoint(event.pos)):
+            muted = not muted
+            if muted:
+                pygame.mixer.music.set_volume(0)
+                on_launch_sfx.set_volume(0)
+                on_select_sfx.set_volume(0)
+                on_power_sfx.set_volume(0)
+                collision_sfx.set_volume(0)
+                sound_img = unmute_img
+            else:
+                pygame.mixer.music.set_volume(0.8)
+                on_launch_sfx.set_volume(1.0)
+                on_select_sfx.set_volume(1.0)
+                on_power_sfx.set_volume(1.0)
+                collision_sfx.set_volume(1.0)
+                sound_img = mute_img
     if game_state=="menu":
         screen.fill((255, 255, 255))
         screen.blit(background_img, (0, 0))
+        screen.blit(sound_img, sound_rect)
         main_text.draw(screen)
         player1_text.draw(screen)
         colon1_text.draw(screen)
@@ -230,6 +255,7 @@ while running:
     elif game_state == "theme":
         screen.fill((255,255,255))
         screen.blit(background_img, (0,0))
+        screen.blit(sound_img, sound_rect)
         Text(WIDTH/2, HEIGHT/10, "Choose a Theme", font(BIG_FONT), TEXT_COLOR[selected_theme]).draw(screen)
         for theme, image, rect in theme_rects:
             draw_rounded_image_with_border(screen, image, rect, border_color=(0, 0, 0), border_thickness=3, radius=25)
@@ -261,6 +287,7 @@ while running:
     elif game_state == "difficulty":
         screen.fill((255,255,255))
         screen.blit(background_img, (0,0))
+        screen.blit(sound_img, sound_rect)
         Text(WIDTH/2, HEIGHT/3, "Select Difficulty (1-4)", font(SMALL_FONT), TEXT_COLOR[selected_theme]).draw(screen)
         for surf, rect in zip(diff_surfaces, diff_rects):
             screen.blit(surf, rect)
@@ -301,6 +328,7 @@ while running:
         # Draw catapults and background
         screen.fill((255, 255, 255))
         screen.blit(background_img, (0, 0))
+        screen.blit(sound_img, sound_rect)
         fortress_right.draw(screen)
         fortress_left.draw(screen)
         screen.blit(catapult_image_left, catapult_left)
@@ -402,10 +430,10 @@ while running:
             if (not active_rectangle.collidepoint(pygame.mouse.get_pos())):
                 points_prediction = []
                 if (vx>0):
-                    for i in range(30):
+                    for i in range(23):
                         points_prediction.append(((active_bird.x + BIRD_SIZE/2 + (WIDTH/50)*i), (active_bird.y + BIRD_SIZE/2 +active_projectile((WIDTH/50)*i))))
                 elif (vx<0):
-                    for i in range(30):
+                    for i in range(23):
                         points_prediction.append(((active_bird.x + BIRD_SIZE/2 - (WIDTH/50)*i), (active_bird.y + BIRD_SIZE/2 + active_projectile(-(WIDTH/50)*i))))
             else:
                 points_prediction = []
@@ -434,10 +462,10 @@ while running:
             if active_bird.bird_type == "blues" and active_bird.on_power == True:
                 active_birds = [x for x in (left_birds if turn == "left" else right_birds) if x.active == True]
                 for i in range(len(active_birds)):
-                    active_fortress.update(active_birds[i])
+                    active_fortress.update(active_birds[i], collision_sfx)
                     active_birds[i].update()
             else:
-                active_fortress.update(active_bird)
+                active_fortress.update(active_bird, collision_sfx)
                 active_bird.update()
             if ((active_bird.bird_type=="red" and active_bird.size-BIRD_SIZE>0) and active_bird.on_power == False):
                 active_bird.apply_power(left_birds if turn=="left" else right_birds, active_fortress)
@@ -540,6 +568,7 @@ while running:
         screen.blit(arrow_image, arrow_rect)
         draw_birds(screen, left_birds, right_birds)
         screen.blit(dim_surface, (0, 0))
+        screen.blit(sound_img, sound_rect)
         Text(WIDTH/2, HEIGHT/4, "PAUSED", font(BIG_FONT), TEXT_COLOR[selected_theme]).draw(screen)
         screen.blit(resume_img, resume_rect)
         screen.blit(replay_img, replay_rect)
@@ -586,6 +615,7 @@ while running:
             winner_text = Text(WIDTH/2, HEIGHT/1.7, f"Game Quit", font(MED_FONT), TEXT_COLOR[selected_theme])
         screen.fill((255, 255, 255))
         screen.blit(background_img, (0, 0))
+        screen.blit(sound_img, sound_rect)
         main_text.draw(screen)
         winner_text.draw(screen)
         screen.blit(play_again_surface, play_again_rect)

@@ -13,7 +13,7 @@ class Input:
         self.state = state
         self.text_surface = font.render(text, True, text_color)
         self.text_rect = self.text_surface.get_rect(center=(x, y))
-        self.outline_surface = pygame.image.load(f"./media/images/input_box_{self.state}.png")
+        self.outline_surface = pygame.image.load(f"./media/images/input_images/input_box_{self.state}.png")
         self.outline_surface = pygame.transform.scale(self.outline_surface, (WIDTH/4, HEIGHT/14))
         self.outline_rect = self.outline_surface.get_rect(center=(self.x,self.y))
 
@@ -24,7 +24,7 @@ class Input:
     def update(self):
         self.text_surface = self.font.render(self.text, True, self.text_color)
         self.text_rect = self.text_surface.get_rect(center=(self.x, self.y))
-        self.outline_surface = pygame.image.load(f"./media/images/input_box_{self.state}.png")
+        self.outline_surface = pygame.image.load(f"./media/images/input_images/input_box_{self.state}.png")
         self.outline_surface = pygame.transform.scale(self.outline_surface, (WIDTH/4, HEIGHT/14))
         self.outline_rect = self.outline_surface.get_rect(center=(self.x,self.y))
 

@@ -31,7 +31,7 @@ class Fortress:
     def __bool__(self):
       return bool(self.list)
     
-    def update(self, bird):
+    def update(self, bird, sound):
         if (bird.bird_type=="bomb" and bird.on_power):
             return
         collision_face = None
@@ -52,6 +52,7 @@ class Fortress:
             else:
                 bird.y -= bird.vy*bird.dt/1.5
                 bird.vy *= -e
+            sound.play()
             collide_mode = False
             bird.collisions += 1
 

@@ -7,6 +7,7 @@ tune all the constants
 sound effects
 find out how gpt code works
 see marking scheme
+see chatgpt ideas
 
 advanced
 
