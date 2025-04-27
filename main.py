@@ -13,7 +13,7 @@ from modules.fortress import *
 from modules.helper import *
 
 pygame.init()
-pygame.mixer.init(frequency=44100, size=-16, channels=2, buffer=512)
+# pygame.mixer.init(frequency=44100, size=-16, channels=2, buffer=512)
 
 screen = pygame.display.set_mode((WIDTH, HEIGHT))
 angry_font = lambda x : pygame.font.Font("./media/fonts/angry.ttf", x)

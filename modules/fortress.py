@@ -62,7 +62,7 @@ class Fortress:
             if block.is_falling:
                 block.y += block.vy*block.dt/1.5
                 block.x += block.vx*block.dt/1.5
-                block.vy += GRAVITY*block.dt/3
+                block.vy += GRAVITY*block.dt/2.3
                 block.rect = pygame.Rect(block.x, block.y, block.size, block.size)
         for cord in [(i, j) for i in range(self.width) for j in range(self.height)]:
             if cord not in self.cordinates:

@@ -19,14 +19,10 @@ class Bird:
         self.on_cat = on_cat
         self.on_power = on_power
         self.collisions = 0
-        if (self.ground<0):
-            self.og_astro_image = image_pack[1]
-            if (self.side=="right"):
-                self.og_astro_image = pygame.transform.flip(self.og_astro_image, True, False)
-            self.astro_image = pygame.transform.scale(self.og_astro_image, (1.5*self.size, 1.8*self.size))
-        else:
-            self.og_astro_image= None
-            self.astro_image = None
+        self.og_astro_image = image_pack[1]
+        if (self.side=="right"):
+            self.og_astro_image = pygame.transform.flip(self.og_astro_image, True, False)
+        self.astro_image = pygame.transform.scale(self.og_astro_image, (1.5*self.size, 1.8*self.size))
         self.og_image = image_pack[0][bird_type]
         if (self.side=="right"):
                 self.og_image = pygame.transform.flip(self.og_image, True, False)
