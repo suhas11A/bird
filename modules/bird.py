@@ -101,8 +101,8 @@ class Bird:
             self.explosion_time = pygame.time.get_ticks()    ################################
             for block in fortress.list:
                 dist = np.linalg.norm(np.array(self.explosion_pos)-np.array(block.get_centre())+np.array((self.size, self.size)))
-                damage = BIRD_DAMAGE[self.bird_type][block.type]*(2/(1+(abs(round(dist/75))**2)))
-                block.health -= damage # To be tuned before submitting
+                damage = BIRD_DAMAGE[self.bird_type][block.type]*(2/(1+(abs(round(dist/75))**2))) # To be tuned before submitting
+                block.health -= damage
                 print(damage)
                 block.update_image(damage)
         elif self.bird_type == "chuck":

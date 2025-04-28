@@ -4,7 +4,6 @@ put powers of birds:
     fix bomb damage formula
 report.pdf
 tune all the constants
-sound effects
 find out how gpt code works
 see marking scheme
 see chatgpt ideas

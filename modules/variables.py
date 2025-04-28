@@ -8,13 +8,13 @@ BLOCK_HEALTH = {
 
 BIRD_DAMAGE = {
     "red": {"wood": 60, "ice": 60, "stone": 60},
-    "chuck": {"wood": 65, "ice": 60, "stone": 60},
-    "blues": {"wood": 60, "ice": 66, "stone": 60},
-    "bomb": {"wood": 60, "ice": 60, "stone": 65}
+    "chuck": {"wood": 70, "ice": 35, "stone": 35},
+    "blues": {"wood": 35, "ice": 70, "stone": 35},
+    "bomb": {"wood": 35, "ice": 35, "stone": 70}
 }  # To be tuned before submitting
 
 DIFFICULTY_SETTINGS = {
-    1: {"width": 2,  "height": 6,  "wind_max":  0}, # To be tuned before submitting
+    1: {"width": 2,  "height": 6,  "wind_max":  0},
     2: {"width": 4,  "height": 6,  "wind_max":  3},
     3: {"width": 6,  "height": 8,  "wind_max":  6},
     4: {"width": 8,  "height":10,  "wind_max":  9},
@@ -32,7 +32,7 @@ SOUND_SIZE = (WIDTH/32, WIDTH/32)
 MAX_RADIUS = 125
 e=0.3
 MAX_COLLISIONS = 5
-fortress_width, fortress_height = 7,7  # To be tuned before submitting
+fortress_width, fortress_height = 7,7
 BIRD_SIZE = round(35 * (WIDTH/1400))
 BLOCK_SIZE = round(30 * (WIDTH/1400))
 EXTRA_SMALL_FONT = round(25 * (WIDTH/1400))
@@ -41,7 +41,7 @@ MED_FONT = round(40 * (WIDTH/1400))
 BIG_FONT = round(50 * (WIDTH/1400))
 BALL_SIZE = 17 * (WIDTH/1600)
 FACTOR_RED = 1.01 # Rate at which red bird grows
-FACTOR_CHUCK = 1.5 # Factor at which speed of chuck increases
+FACTOR_CHUCK = 1.9 # Factor at which speed of chuck increases
 THEMES = ["default", "space", "lava", "desert", "castle", "farm"]
 GROUND_LEVEL = {
     "default" : (HEIGHT/7),
@@ -68,8 +68,8 @@ THEME_BACKGROUNDS_PATH = {
     "lava": "./media/images/backgrounds/lava.png"
 }
 NUM_FRAMES = 15
-wind_period = 30 # To be tuned before submitting
-WIND_MUL = 50 # To be tuned before submitting
+wind_period = 30
+WIND_MUL = 60
 TIME_LIMIT = 20
 NOISE_SEED = 1234
 BUTTON_W = round(216 * (WIDTH/1600))
