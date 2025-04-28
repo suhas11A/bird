@@ -14,7 +14,7 @@ class Block:
         self.image = image_pack[0][block_type]
         if (self.side=="right"):
             self.image = pygame.transform.flip(self.image, True, False)
-        self.future_use_image = image_pack[1][block_type]
+        self.future_use_image = (image_pack[0][block_type],image_pack[1][block_type],image_pack[2][block_type],image_pack[3][block_type])
         self.vx = 0
         self.vy = 0
         self.is_falling = False
@@ -44,8 +44,18 @@ class Block:
         return False, collision_face
 
     def update_image(self, damage):
-        if ((0<self.health<=50) and self.health+damage>50):
-            self.image = self.future_use_image
+        if ((0<self.health<=75) and self.health+damage>75):
+            self.image = self.future_use_image[1]
+            if (self.side == "right"):
+                self.image = pygame.transform.flip(self.image, True, False)
+            self.image = pygame.transform.scale(self.image, (self.size, self.size))
+        elif ((0<self.health<=50) and self.health+damage>50):
+            self.image = self.future_use_image[2]
+            if (self.side == "right"):
+                self.image = pygame.transform.flip(self.image, True, False)
+            self.image = pygame.transform.scale(self.image, (self.size, self.size))
+        elif ((0<self.health<=25) and self.health+damage>25):
+            self.image = self.future_use_image[3]
             if (self.side == "right"):
                 self.image = pygame.transform.flip(self.image, True, False)
             self.image = pygame.transform.scale(self.image, (self.size, self.size))

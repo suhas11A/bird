@@ -1,15 +1,16 @@
-basic
-
-put powers of birds:
-    fix bomb damage formula
-report.pdf
-tune all the constants
 find out how gpt code works
 see marking scheme
 see chatgpt ideas
+make iron not fall
 
-advanced
+Report
 
-levels : moving blocks
-make 5 different variations in block health and you might have to scale the blocks bigger accordingly
-other things your wish
+It’s up to you how the bird generation works. Mention the method you used in the report
+The project needs a report written in LaTeX. The report should include:
+    Modules: List of external libraries used and their purpose.
+    Directory Structure: Breakdown of all files and their functions.
+    Running Instructions: How to execute and play the game, including controls.
+    Basic & Advanced Features: Implemented mechanics with explanations and images.
+    Project Journey: Key learnings, challenges, and how they were addressed.
+    Bibliography: References and links to external sources.
+    Cite all references in the report to avoid plagiarism issues.

@@ -80,8 +80,8 @@ class Bird:
             bird_list.append(Bird(self.image_pack, self.ground, self.x, self.y, self.bird_type, self.side, self.vx, self.vy, self.size, True, True, False, True))
             temp_bird = bird_list[-1]
             temp_bird.explosion_pos = (temp_bird.x, temp_bird.y)
-            bird_list.append(Bird(self.image_pack, self.ground, self.x, self.y, self.bird_type, self.side, self.vx, self.vy+200, self.size, True, True, False, True))
-            bird_list.append(Bird(self.image_pack, self.ground, self.x, self.y, self.bird_type, self.side, self.vx, self.vy-200, self.size, True, True, False, True))
+            bird_list.append(Bird(self.image_pack, self.ground, self.x, self.y, self.bird_type, self.side, self.vx+50, self.vy+200, self.size, True, True, False, True))
+            bird_list.append(Bird(self.image_pack, self.ground, self.x, self.y, self.bird_type, self.side, self.vx-50, self.vy-200, self.size, True, True, False, True))
             for i in range(3):
                 bird_list[-(i+1)].wind = wind
         elif self.bird_type == "red":
@@ -101,7 +101,7 @@ class Bird:
             self.explosion_time = pygame.time.get_ticks()    ################################
             for block in fortress.list:
                 dist = np.linalg.norm(np.array(self.explosion_pos)-np.array(block.get_centre())+np.array((self.size, self.size)))
-                damage = BIRD_DAMAGE[self.bird_type][block.type]*(2/(1+(abs(round(dist/75))**2))) # To be tuned before submitting
+                damage = BIRD_DAMAGE[self.bird_type][block.type]*(2/(1+(abs(round(dist/75))**2)))
                 block.health -= damage
                 print(damage)
                 block.update_image(damage)

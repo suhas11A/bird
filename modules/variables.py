@@ -3,25 +3,26 @@ import pygame # type: ignore
 BLOCK_HEALTH = {
     "wood": 100,
     "ice": 100,
-    "stone": 100
+    "stone": 100,
+    "iron" : 100
 }
 
 BIRD_DAMAGE = {
-    "red": {"wood": 60, "ice": 60, "stone": 60},
-    "chuck": {"wood": 70, "ice": 35, "stone": 35},
-    "blues": {"wood": 35, "ice": 70, "stone": 35},
-    "bomb": {"wood": 35, "ice": 35, "stone": 70}
-}  # To be tuned before submitting
+    "red": {"wood": 50, "ice": 50, "stone": 50, "iron": 0},
+    "chuck": {"wood": 60, "ice": 40, "stone": 40, "iron": 0},
+    "blues": {"wood": 40, "ice": 60, "stone": 40, "iron": 0},
+    "bomb": {"wood": 40, "ice": 40, "stone": 60, "iron": 0}
+}
 
 DIFFICULTY_SETTINGS = {
-    1: {"width": 2,  "height": 6,  "wind_max":  0},
-    2: {"width": 4,  "height": 6,  "wind_max":  3},
-    3: {"width": 6,  "height": 8,  "wind_max":  6},
-    4: {"width": 8,  "height":10,  "wind_max":  9},
+    1: {"width": 2,  "height": 5,  "wind_max":  0},
+    2: {"width": 3,  "height": 6,  "wind_max":  3},
+    3: {"width": 4,  "height": 7,  "wind_max":  6},
+    4: {"width": 4,  "height": 8,  "wind_max":  9},
 }
 
 BIRD_OPTIONS = ["red", "chuck", "blues", "bomb"]
-BLOCK_OPTIONS = ["wood", "ice", "stone"]
+BLOCK_OPTIONS = ["wood", "ice", "stone", "iron"]
 WIDTH, HEIGHT = 1600, 900
 GRAVITY = 1000
 FPS = 120
@@ -34,7 +35,7 @@ e=0.3
 MAX_COLLISIONS = 5
 fortress_width, fortress_height = 7,7
 BIRD_SIZE = round(35 * (WIDTH/1400))
-BLOCK_SIZE = round(30 * (WIDTH/1400))
+BLOCK_SIZE = round(40 * (WIDTH/1400))
 EXTRA_SMALL_FONT = round(25 * (WIDTH/1400))
 SMALL_FONT = round(30 * (WIDTH/1400))
 MED_FONT = round(40 * (WIDTH/1400))
@@ -74,3 +75,4 @@ TIME_LIMIT = 20
 NOISE_SEED = 1234
 BUTTON_W = round(216 * (WIDTH/1600))
 BUTTON_H = round(70 * (WIDTH/1600))
+IRON_COUNT = 2

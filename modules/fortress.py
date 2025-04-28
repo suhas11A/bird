@@ -12,7 +12,16 @@ class Fortress:
         else:
             self.theme = "not space"
         self.side = side
-        block_randoms = [BLOCK_OPTIONS[i%3] for i in range(width * height)]
+        total = width * height
+        iron_count = IRON_COUNT
+        remaining = total - iron_count
+        base, rem = divmod(remaining, 3) ################
+        counts = {"ice": base, "stone": base, "wood": base} ################
+        for typ in ("ice","stone","wood")[:rem]: ################
+            counts[typ] += 1 ################
+        block_randoms = ["iron"] * iron_count ################
+        for typ, cnt in counts.items():
+            block_randoms += [typ] * cnt  ################
         random.shuffle(block_randoms)
         if (side=="left"):
             self.list = [Block(image_pack, 50 + i * (BLOCK_SIZE), HEIGHT-ground-BLOCK_SIZE-(BLOCK_SIZE)*j, block_randoms[k],"left") for k,(i,j) in enumerate([(i, j) for i in range(width) for j in range(height)])]
@@ -21,7 +30,7 @@ class Fortress:
         self.width = width
         self.height = height
         self.cordinates = [(i, j) for i in range(width) for j in range(height)]
-        self.dictionary = dict(zip( self.cordinates, self.list))
+        self.dictionary = dict(zip(self.cordinates, self.list))
         self.ground = ground
 
     def draw(self, screen):

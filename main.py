@@ -46,9 +46,9 @@ play_rect = play_surface.get_rect(center=(WIDTH/2,HEIGHT/2))
 choose_theme_surface = pygame.image.load("./media/images/theme.png").convert_alpha()
 choose_theme_surface = pygame.transform.scale(choose_theme_surface, (WIDTH/8, HEIGHT/11))
 choose_theme_rect = choose_theme_surface.get_rect(center=(WIDTH/2, HEIGHT/1.65))
-mute_img = pygame.image.load("./media/images/sound_options/mute.png").convert_alpha()
+mute_img = pygame.image.load("./media/images/sound_options/unmute.png").convert_alpha()
 mute_img = pygame.transform.scale(mute_img, SOUND_SIZE)
-unmute_img = pygame.image.load("./media/images/sound_options/unmute.png").convert_alpha()
+unmute_img = pygame.image.load("./media/images/sound_options/mute.png").convert_alpha()
 unmute_img = pygame.transform.scale(unmute_img, SOUND_SIZE)
 sound_img = mute_img
 sound_rect = unmute_img.get_rect(center=(WIDTH*(1/25), HEIGHT/16))
@@ -86,17 +86,14 @@ for i in range(NUM_FRAMES):
     img = pygame.transform.scale(img, (BIRD_SIZE * 7, BIRD_SIZE * 7))
     EXPLOSION_FRAMES.append(img)
 BIRD_PACK = (BIRD_OG_IMAGES, OG_HELMET_IMAGE, EXPLOSION_FRAMES)
-BLOCK_IMAGES_1 = {}
-for block in BLOCK_OPTIONS:
-    image = pygame.image.load(f"./media/images/blocks/{block}_1.png").convert_alpha()
-    image = pygame.transform.scale(image, (BLOCK_SIZE, BLOCK_SIZE))
-    BLOCK_IMAGES_1[block] = image
-BLOCK_IMAGES_2 = {}
-for block in BLOCK_OPTIONS:
-    image = pygame.image.load(f"./media/images/blocks/{block}_2.png").convert_alpha()
-    image = pygame.transform.scale(image, (BLOCK_SIZE, BLOCK_SIZE))
-    BLOCK_IMAGES_2[block] = image
-BLOCK_PACK = (BLOCK_IMAGES_1, BLOCK_IMAGES_2)
+BLOCK_IMAGES = {}
+for i in range(1, 5):
+    BLOCK_IMAGES[i] = {}
+    for block in BLOCK_OPTIONS:
+        img = pygame.image.load(f"./media/images/blocks/{block}_{i}.png").convert_alpha()
+        img = pygame.transform.scale(img, (BLOCK_SIZE, BLOCK_SIZE))
+        BLOCK_IMAGES[i][block] = img
+BLOCK_PACK = (BLOCK_IMAGES[1], BLOCK_IMAGES[2], BLOCK_IMAGES[3], BLOCK_IMAGES[4])
 # Prediction image
 circle_image = pygame.image.load("./media/images/circle.png").convert_alpha()
 # Difficulty choosing
