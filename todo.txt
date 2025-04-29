@@ -1,7 +1,10 @@
 find out how gpt code works
 see marking scheme
 see chatgpt ideas
-make iron not fall
+in report add about the iron block
+in report mention that i added all the images only once before loop started
+put comments
+remove ########
 
 Report
 

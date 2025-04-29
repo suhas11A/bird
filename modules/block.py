@@ -28,7 +28,7 @@ class Block:
         if self.health > 0:
             screen.blit(self.image, (self.x, self.y))
 
-    def check_collision(self, bird, collision_face):
+    def check_collision(self, bird, collision_face): # Tells if the collision happened on top or side
         if (self.health <= 0):
             return False, collision_face
         block_rect = self.rect
@@ -43,7 +43,7 @@ class Block:
                 return True, "top"
         return False, collision_face
 
-    def update_image(self, damage):
+    def update_image(self, damage): # If after damage the health falls below a certain level updates the imag
         if ((0<self.health<=75) and self.health+damage>75):
             self.image = self.future_use_image[1]
             if (self.side == "right"):

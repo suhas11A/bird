@@ -20,7 +20,7 @@ class Bird:
         self.on_power = on_power
         self.collisions = 0
         self.og_astro_image = image_pack[1]
-        if (self.side=="right"):
+        if (self.side=="right"): # Flip the bird if its a right bird
             self.og_astro_image = pygame.transform.flip(self.og_astro_image, True, False)
         self.astro_image = pygame.transform.scale(self.og_astro_image, (1.5*self.size, 1.8*self.size))
         self.og_image = image_pack[0][bird_type]
@@ -36,7 +36,7 @@ class Bird:
         if self.bird_type == "bomb":
             self.explosion_frames = image_pack[2]
 
-    def update(self):
+    def update(self): # go in a parabola and if bomb powered adjust the timer
         if ((not self.alive) or (not self.active)):
             return
         self.x += self.vx*self.dt/1.5
@@ -58,20 +58,20 @@ class Bird:
             self.vy *= -e
             self.collisions += 1
 
-        if self.bird_type == "bomb" and self.on_power and self.alive:    ################################
+        if self.bird_type == "bomb" and self.on_power and self.alive:
             self.x = self.explosion_pos[0]
             self.y = self.explosion_pos[1]
             self.vx = 0
             self.vy = 0
-            now = pygame.time.get_ticks()    ################################
-            if self.explosion_index < len(self.explosion_frames):    ################################
-                if now - self.explosion_time > 75:    ################################
-                    self.explosion_time = now    ################################
-                    self.explosion_index += 1    ################################
+            now = pygame.time.get_ticks()
+            if self.explosion_index < len(self.explosion_frames):
+                if now - self.explosion_time > 75:
+                    self.explosion_time = now
+                    self.explosion_index += 1
             else:
-                self.alive = False     ################################
+                self.alive = False
 
-    def apply_power(self, bird_list, fortress):
+    def apply_power(self, bird_list, fortress): # Is called on powering up the bird
         if self.bird_type == "blues":
             self.active = False
             self.alive = False
@@ -98,25 +98,24 @@ class Bird:
             self.vy = 0
             self.vx = 0
             self.explosion_pos = (self.x, self.y)
-            self.explosion_time = pygame.time.get_ticks()    ################################
+            self.explosion_time = pygame.time.get_ticks()
             for block in fortress.list:
                 dist = np.linalg.norm(np.array(self.explosion_pos)-np.array(block.get_centre())+np.array((self.size, self.size)))
                 damage = BIRD_DAMAGE[self.bird_type][block.type]*(2/(1+(abs(round(dist/75))**2)))
                 block.health -= damage
-                print(damage)
                 block.update_image(damage)
         elif self.bird_type == "chuck":
             self.on_power = True
             self.vx *= FACTOR_CHUCK
             self.vy *= FACTOR_CHUCK
 
-    def draw(self, screen):
+    def draw(self, screen): # Draws the bird or the bomb explosion at a position
         if not self.alive:
             return
-        if self.bird_type == "bomb" and self.on_power and self.explosion_index < len(self.explosion_frames):    ################################
-            img = self.explosion_frames[self.explosion_index]    ################################
-            screen.blit(img, (self.explosion_pos[0] - img.get_width() / 2, self.explosion_pos[1] - img.get_height() / 1.8))    ################################
-            return    ################################
+        if self.bird_type == "bomb" and self.on_power and self.explosion_index < len(self.explosion_frames):
+            img = self.explosion_frames[self.explosion_index]
+            screen.blit(img, (self.explosion_pos[0] - img.get_width() / 2, self.explosion_pos[1] - img.get_height() / 1.8))
+            return
         elif (self.bird_type!="bomb" or not self.on_power):
             screen.blit(self.image, (self.x, self.y))
             if (self.ground<0):
@@ -145,7 +144,7 @@ def draw_birds(screen, *bird_list):
         for i in listt:
             i.draw(screen)
 
-def kill_birds(*bird_list):
+def kill_birds(*bird_list): # Removes the bird from bird list if its dead or if its has more than MAX_COLLISIONS
     for listt in bird_list:
         for i in listt:
             if not i.alive or i.collisions >= MAX_COLLISIONS:

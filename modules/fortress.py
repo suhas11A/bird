@@ -5,40 +5,52 @@ from modules.block import *
 from modules.variables import *
 
 class Fortress:
-    def __init__(self, image_pack,  ground, side, width = fortress_width, height = fortress_height):
-        if (ground<0):
-            ground = (HEIGHT/7)
+    def __init__(self, image_pack, ground, side,width=fortress_width, height=fortress_height,base_fortress=None):
+        if ground < 0:
+            ground = HEIGHT // 7
             self.theme = "space"
         else:
             self.theme = "not space"
-        self.side = side
-        total = width * height
-        iron_count = IRON_COUNT
-        remaining = total - iron_count
-        base, rem = divmod(remaining, 3) ################
-        counts = {"ice": base, "stone": base, "wood": base} ################
-        for typ in ("ice","stone","wood")[:rem]: ################
-            counts[typ] += 1 ################
-        block_randoms = ["iron"] * iron_count ################
-        for typ, cnt in counts.items():
-            block_randoms += [typ] * cnt  ################
-        random.shuffle(block_randoms)
-        if (side=="left"):
-            self.list = [Block(image_pack, 50 + i * (BLOCK_SIZE), HEIGHT-ground-BLOCK_SIZE-(BLOCK_SIZE)*j, block_randoms[k],"left") for k,(i,j) in enumerate([(i, j) for i in range(width) for j in range(height)])]
-        else :
-            self.list = [Block(image_pack, WIDTH - (50+BLOCK_SIZE) - i * (BLOCK_SIZE), HEIGHT-ground-BLOCK_SIZE-(BLOCK_SIZE)*j, block_randoms[k],"right") for k,(i,j) in enumerate([(i, j) for i in range(width) for j in range(height)])]
-        self.width = width
-        self.height = height
-        self.cordinates = [(i, j) for i in range(width) for j in range(height)]
-        self.dictionary = dict(zip(self.cordinates, self.list))
         self.ground = ground
+        self.side   = side
+        self.width  = width
+        self.height = height
+        self. cordinates = [(i, j) for i in range(width) for j in range(height)]
+        if base_fortress is not None:
+            self.block_randoms = [b.type for b in base_fortress.list]
+        else:
+            total       = width * height
+            iron_count  = IRON_COUNT
+            remaining   = total - iron_count
+            base, rem   = divmod(remaining, 3)
+            counts      = {"ice": base, "stone": base, "wood": base}
+            for typ in ("ice", "stone", "wood")[:rem]:
+                counts[typ] += 1
+            br = ["iron"] * iron_count
+            for typ, cnt in counts.items():
+                br += [typ] * cnt
+            random.shuffle(br)
+            self.block_randoms = br
+        def x_of(i):
+            if side == "left":
+                return 50 + i * BLOCK_SIZE
+            else:
+                return WIDTH - (50 + BLOCK_SIZE) - i * BLOCK_SIZE
+        self.list = []
+        for k, (i, j) in enumerate(self. cordinates):
+            x = x_of(i)
+            y = HEIGHT - ground - BLOCK_SIZE - j * BLOCK_SIZE
+            typ = self.block_randoms[k]
+            self.list.append(Block(image_pack, x, y, typ, side))
+        self.dictionary = dict(zip(self. cordinates, self.list))
+
 
     def draw(self, screen):
         for i in self.list:
             i.draw(screen)
 
     def __bool__(self):
-      return bool(self.list)
+      return (len(self.list)>IRON_COUNT)
     
     def update(self, bird, sound):
         if (bird.bird_type=="bomb" and bird.on_power):
@@ -69,6 +81,9 @@ class Fortress:
         if (self.theme=="space"):
             return
         for block in self.list:
+            if block.type == "iron":
+                block.is_falling = False
+        for block in self.list:
             if block.is_falling:
                 block.y += block.vy*block.dt/1.5
                 block.x += block.vx*block.dt/1.5
@@ -78,28 +93,28 @@ class Fortress:
             if cord not in self.cordinates:
                 up_block_cords = [(cord[0],j) for j in range(cord[1]+1,self.height)]
                 for cord_ in up_block_cords:
-                    if cord_ in self.dictionary:
+                    if (cord_ in self.dictionary) and (self.dictionary[cord_].type!="iron"):
                         self.dictionary[cord_].is_falling = True
         for block in self.list:
-            if block.is_falling:
-                if block.y + block.size >= HEIGHT - self.ground: 
-                    block.y = HEIGHT - self.ground - block.size
-                    block.vy = 0
-                    block.vx = 0
-                    block.is_falling = False
+            if not block.is_falling:
+                continue
+            if block.y + block.size >= HEIGHT - self.ground:
+                block.y = HEIGHT - self.ground - block.size
+                block.vy = block.vx = 0
+                block.is_falling = False
+                continue
+            for other in self.list:
+                if other is block or other.is_falling:
                     continue
-                for other in self.list:
-                    if other == block or other.is_falling:
-                        continue
-                    if (abs(block.x - other.x) < 1) and ((block.y + block.size) > other.y):
-                        block.y = other.y - block.size
-                        block.vy = 0
-                        block.vx = 0
-                        block.is_falling = False
-                        break
+                if abs(block.x - other.x) < 1 and (other.y+other.size > (block.y + block.size) > other.y):
+                    block.y = other.y - block.size
+                    block.vy = block.vx = 0
+                    block.is_falling = False
+                    break
+
             
     
-def kill_fortress(*fortress_list):
+def kill_fortress(*fortress_list): # Kills the blocks if it has health less than or zero
     for fortress in fortress_list:
         to_be_killed = []
         for i in range(len(fortress.list)):

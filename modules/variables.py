@@ -8,10 +8,10 @@ BLOCK_HEALTH = {
 }
 
 BIRD_DAMAGE = {
-    "red": {"wood": 50, "ice": 50, "stone": 50, "iron": 0},
-    "chuck": {"wood": 60, "ice": 40, "stone": 40, "iron": 0},
-    "blues": {"wood": 40, "ice": 60, "stone": 40, "iron": 0},
-    "bomb": {"wood": 40, "ice": 40, "stone": 60, "iron": 0}
+    "red": {"wood": 45, "ice": 45, "stone": 45, "iron": 0},
+    "chuck": {"wood": 65, "ice": 40, "stone": 40, "iron": 0},
+    "blues": {"wood": 40, "ice": 65, "stone": 40, "iron": 0},
+    "bomb": {"wood": 40, "ice": 40, "stone": 65, "iron": 0}
 }
 
 DIFFICULTY_SETTINGS = {

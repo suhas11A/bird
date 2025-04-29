@@ -21,14 +21,14 @@ class Input:
         draw_rounded_image_with_border(screen, self.outline_surface, self.outline_rect, border_color=(0, 0, 0), border_thickness=0, radius=round(14*(WIDTH/1600)))
         screen.blit(self.text_surface, self.text_rect)
     
-    def update(self):
+    def update(self): # If its deadens or alivens the images is refetched
         self.text_surface = self.font.render(self.text, True, self.text_color)
         self.text_rect = self.text_surface.get_rect(center=(self.x, self.y))
         self.outline_surface = pygame.image.load(f"./media/images/input_images/input_box_{self.state}.png")
         self.outline_surface = pygame.transform.scale(self.outline_surface, (WIDTH/4, HEIGHT/14))
         self.outline_rect = self.outline_surface.get_rect(center=(self.x,self.y))
 
-    def make_text(self, x, y, color):
+    def make_text(self, x, y, color): # Makes text object from names so that i can use it in the game play screen
         return Text(x, y, self.text, self.font, text_color = color)
 
 def draw_inputs(screen, *input_list):
