@@ -20,7 +20,7 @@ class Fortress:
             self.block_randoms = [b.type for b in base_fortress.list]
         else:
             total       = width * height
-            iron_count  = IRON_COUNT
+            iron_count  = (IRON_COUNT if self.theme!="space" else 0)
             remaining   = total - iron_count
             base, rem   = divmod(remaining, 3)
             counts      = {"ice": base, "stone": base, "wood": base}
