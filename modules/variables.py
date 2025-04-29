@@ -46,7 +46,7 @@ FACTOR_CHUCK = 1.9 # Factor at which speed of chuck increases
 THEMES = ["default", "space", "lava", "desert", "castle", "farm"]
 GROUND_LEVEL = {
     "default" : (HEIGHT/7),
-    "space" : -(HEIGHT/5),
+    "space" : -(HEIGHT),
     "desert" : (HEIGHT/13),
     "farm" : (HEIGHT/9),
     "castle" : (HEIGHT/8.6),

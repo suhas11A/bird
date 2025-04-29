@@ -49,7 +49,7 @@ class Bird:
         if (wind!=0):
             self.vx += (wind**2)*(wind/abs(wind))*WIND_MUL*self.dt/1.5
 
-        if self.y < -(50) or self.x > (WIDTH+(40)) or self.x < -(40):
+        if self.y < -(50) or self.x > (WIDTH+(40)) or self.x < -(40) or self.y> HEIGHT+80:
             self.alive = False
             self.active = False
             self.on_cat = False
