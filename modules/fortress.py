@@ -50,7 +50,8 @@ class Fortress:
             i.draw(screen)
 
     def __bool__(self):
-      return (len(self.list)>IRON_COUNT)
+      temp = (IRON_COUNT if self.theme!="space" else 0)
+      return (len(self.list)>temp)
     
     def update(self, bird, sound):
         if (bird.bird_type=="bomb" and bird.on_power):
