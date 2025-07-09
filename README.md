@@ -36,7 +36,7 @@ bird/
 3. **Install dependencies**
 
    ```bash
-   pip install numpy
+   pip install numpy pygame-ce
    ```
 
 ## Usage
