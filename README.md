@@ -2,7 +2,7 @@
 
 <!-- TODO: Replace the following placeholder description with an overview of the project’s purpose and goals -->
 
-A Python-based project for **(brief description here, e.g., bird species classification, analysis, or detection)**. This repository contains the source code, media assets, and final report for the project.
+A Python-based angry birds game. This repository contains the source code, media assets, and final report for the project.
 
 ## Repository Structure
 
